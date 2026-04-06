@@ -1,10 +1,70 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
-  <title>My Web App</title>
+  <meta charset="UTF-8">
+  <title>Spin Game</title>
+  <style>
+    body {
+      background: #0f172a;
+      color: white;
+      text-align: center;
+      font-family: Arial;
+    }
+
+    .wheel {
+      margin: 50px auto;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      border: 5px solid gold;
+      background: conic-gradient(
+        red 0deg 60deg,
+        yellow 60deg 120deg,
+        blue 120deg 180deg,
+        green 180deg 240deg,
+        orange 240deg 300deg,
+        purple 300deg 360deg
+      );
+      transition: transform 3s ease-out;
+    }
+
+    button {
+      padding: 15px 30px;
+      background: gold;
+      border: none;
+      border-radius: 10px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
-  <h1>Salom 👋</h1>
-  <p>Bu mening web appim!</p>
+
+<h1>🎡 Spin O‘yini</h1>
+
+<div id="wheel" class="wheel"></div>
+
+<button onclick="spin()">Aylantirish</button>
+
+<p id="result"></p>
+
+<script>
+let currentRotation = 0;
+
+function spin() {
+  let extra = Math.floor(Math.random() * 360);
+  currentRotation += 360 * 5 + extra;
+
+  document.getElementById("wheel").style.transform =
+    `rotate(${currentRotation}deg)`;
+
+  let prizes = ["1 UC", "2 UC", "5 UC", "10 UC", "0 UC"];
+  let win = prizes[Math.floor(Math.random() * prizes.length)];
+
+  document.getElementById("result").innerText =
+    "Siz yutdingiz: " + win;
+}
+</script>
+
 </body>
 </html>
