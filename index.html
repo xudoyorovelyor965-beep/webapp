@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WEBDROP</title>
+<title>UC Spin</title>
 
 <style>
 body {
   margin: 0;
   font-family: Arial;
-  background: linear-gradient(#0b0f2a, #070a1f);
+  background: #0b0f2a;
   color: white;
 }
 
@@ -18,40 +18,46 @@ body {
   display: flex;
   justify-content: space-between;
   padding: 15px;
-  background: #1b1f3a;
+  background: #111;
 }
 
-.uc {
-  background: linear-gradient(gold, orange);
+.balance {
+  background: gold;
   color: black;
-  padding: 8px 15px;
+  padding: 5px 12px;
   border-radius: 20px;
-  font-weight: bold;
 }
 
 /* PAGES */
-.page {
-  display: none;
-  padding: 15px;
-}
+.page { display: none; padding: 15px; }
+.active { display: block; }
 
-.active {
-  display: block;
-}
-
-/* SPIN */
-canvas {
+/* WHEEL */
+#wheel {
+  width: 280px;
+  height: 280px;
   border-radius: 50%;
-  box-shadow: 0 0 40px gold;
+  margin: 20px auto;
+  border: 6px solid gold;
+  background: conic-gradient(
+    #ff4d4d 0deg 60deg,
+    #4d79ff 60deg 120deg,
+    #4dff88 120deg 180deg,
+    #ffff4d 180deg 240deg,
+    #ff944d 240deg 300deg,
+    #cc66ff 300deg 360deg
+  );
+  transition: transform 4s ease-out;
 }
 
+/* BUTTON */
 button {
-  margin-top: 20px;
-  padding: 15px 40px;
-  border: none;
-  border-radius: 30px;
+  padding: 12px 25px;
   background: linear-gradient(gold, orange);
-  font-weight: bold;
+  border: none;
+  border-radius: 25px;
+  font-size: 16px;
+  margin-top: 10px;
 }
 
 /* CARD */
@@ -59,7 +65,7 @@ button {
   background: #1b1f3a;
   padding: 15px;
   border-radius: 15px;
-  margin-top: 15px;
+  margin-top: 10px;
 }
 
 /* MENU */
@@ -69,17 +75,13 @@ button {
   width: 100%;
   display: flex;
   justify-content: space-around;
-  background: #1b1f3a;
+  background: #111;
   padding: 10px 0;
 }
 
 .menu div {
-  font-size: 12px;
-  cursor: pointer;
-}
-
-.active-tab {
-  color: gold;
+  text-align: center;
+  font-size: 14px;
 }
 </style>
 </head>
@@ -88,48 +90,51 @@ button {
 
 <div class="header">
   <b>WEBDROP</b>
-  <div class="uc">💰 <span id="balance">0</span> UC</div>
+  <div class="balance">💰 <span id="balance">0</span> UC</div>
 </div>
 
-<!-- ASOSIY -->
+<!-- HOME -->
 <div id="home" class="page active">
+  <div id="wheel"></div>
   <center>
-    <canvas id="wheel" width="300" height="300"></canvas>
-    <br>
     <button onclick="spin()">Aylantirish</button>
     <p id="msg"></p>
   </center>
 </div>
 
-<!-- VAZIFALAR -->
+<!-- TASK -->
 <div id="tasks" class="page">
   <div class="card">
-    <h3>Do'st taklif qiling</h3>
-    <p>Har bir do‘st uchun spin olasiz</p>
-    <button>Taklif qilish</button>
+    👥 Do‘st taklif qiling<br>
+    Har bir do‘st uchun +5 UC
+    <br><button onclick="invite()">Taklif qilish</button>
   </div>
 </div>
 
 <!-- MINE -->
 <div id="mine" class="page">
-  <div class="card">Joriy clicklar: 101</div>
-  <div class="card">Jami clicklar: 101</div>
-  <div class="card">Ball balans: 101</div>
+  <div class="card">Jami UC: <span id="balance2">0</span></div>
+  <div class="card">Bugungi spin: 1 marta</div>
 </div>
 
-<!-- REYTING -->
+<!-- RATING -->
 <div id="rating" class="page">
-  <div class="card">#1 Shoxrux - 192 UC</div>
-  <div class="card">#2 Sunnatbek - 187 UC</div>
+  <div class="card">#1 Ali - 500 UC</div>
+  <div class="card">#2 Vali - 320 UC</div>
 </div>
 
-<!-- HAMYON -->
+<!-- WALLET -->
 <div id="wallet" class="page">
   <div class="card">
-    <h3>8 UC</h3>
+    60 UC chiqarish<br>
     <input placeholder="PUBG ID">
-    <br><br>
-    <button>So‘rov yuborish</button>
+    <br><button onclick="withdraw(60)">Olish</button>
+  </div>
+
+  <div class="card">
+    120 UC chiqarish<br>
+    <input placeholder="PUBG ID">
+    <br><button onclick="withdraw(120)">Olish</button>
   </div>
 </div>
 
@@ -143,46 +148,53 @@ button {
 </div>
 
 <script>
-// PAGE SWITCH
+let balance = parseInt(localStorage.getItem("balance")) || 0;
+document.getElementById("balance").innerText = balance;
+document.getElementById("balance2").innerText = balance;
+
 function openPage(id){
   document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
 
-// WHEEL
-const canvas = document.getElementById("wheel");
-const ctx = canvas.getContext("2d");
-
-const prizes = [0,1,2,3,4,5,10,50];
-let angle = 0;
-
-function drawWheel(){
-  let arc = Math.PI*2/prizes.length;
-  for(let i=0;i<prizes.length;i++){
-    ctx.beginPath();
-    ctx.fillStyle = `hsl(${i*40},80%,60%)`;
-    ctx.moveTo(150,150);
-    ctx.arc(150,150,150,arc*i,arc*(i+1));
-    ctx.fill();
-
-    ctx.fillStyle="white";
-    ctx.fillText(prizes[i]+" UC",150+Math.cos(arc*i)*80,150+Math.sin(arc*i)*80);
-  }
-}
-
-drawWheel();
+let current = 0;
 
 function spin(){
-  let win = prizes[Math.floor(Math.random()*prizes.length)];
-  let balance = parseInt(localStorage.getItem("balance")||0);
-  balance += win;
+  let deg = Math.floor(Math.random()*2000)+2000;
+  current += deg;
 
-  localStorage.setItem("balance", balance);
-  document.getElementById("balance").innerText = balance;
-  document.getElementById("msg").innerText = "Yutding: "+win+" UC";
+  document.getElementById("wheel").style.transform =
+    "rotate("+current+"deg)";
+
+  let prizes = [0,2,5,10,20];
+  let win = prizes[Math.floor(Math.random()*prizes.length)];
+
+  setTimeout(()=>{
+    balance += win;
+    localStorage.setItem("balance", balance);
+    document.getElementById("balance").innerText = balance;
+    document.getElementById("balance2").innerText = balance;
+    document.getElementById("msg").innerText = "🎉 Siz yutdingiz: "+win+" UC";
+  },4000);
 }
 
-document.getElementById("balance").innerText = localStorage.getItem("balance")||0;
+function invite(){
+  balance += 5;
+  localStorage.setItem("balance", balance);
+  document.getElementById("balance").innerText = balance;
+  alert("Do‘st qo‘shildi +5 UC");
+}
+
+function withdraw(amount){
+  if(balance < amount){
+    alert("Yetarli UC yo‘q");
+    return;
+  }
+  balance -= amount;
+  localStorage.setItem("balance", balance);
+  document.getElementById("balance").innerText = balance;
+  alert(amount+" UC chiqarildi!");
+}
 </script>
 
 </body>
