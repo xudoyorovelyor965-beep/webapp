@@ -9,122 +9,224 @@
 body {
   margin:0;
   font-family: Arial;
-  background:#0f172a;
+  background:#0b1020;
   color:white;
   text-align:center;
 }
 
-h1 {
-  margin-top:20px;
+/* HEADER */
+.header {
+  padding:15px;
+  background:#1a1f3a;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
 }
 
-.wheel {
-  width:250px;
-  height:250px;
+.balance-box {
+  background:gold;
+  color:black;
+  padding:8px 15px;
+  border-radius:20px;
+  font-weight:bold;
+}
+
+/* WHEEL */
+.wheel-container {
+  margin-top:30px;
+}
+
+#wheel {
+  width:260px;
+  height:260px;
   border-radius:50%;
   border:6px solid gold;
-  margin:20px auto;
-  background: conic-gradient(
-    red 0deg 60deg,
-    cyan 60deg 120deg,
-    yellow 120deg 180deg,
-    pink 180deg 240deg,
-    lime 240deg 300deg,
-    orange 300deg 360deg
-  );
-  transition: transform 4s ease-out;
+  margin:auto;
+  transition:transform 4s ease-out;
 }
 
-button {
-  background:gold;
-  border:none;
+/* POINTER */
+.pointer {
+  width:0;
+  height:0;
+  border-left:15px solid transparent;
+  border-right:15px solid transparent;
+  border-bottom:25px solid red;
+  margin:10px auto;
+}
+
+/* BUTTON */
+.btn {
+  margin-top:20px;
   padding:12px 25px;
-  border-radius:10px;
-  font-size:18px;
+  border:none;
+  border-radius:20px;
+  background:gold;
+  font-weight:bold;
   cursor:pointer;
 }
 
+/* INPUT */
 input {
+  margin-top:15px;
   padding:10px;
-  border-radius:8px;
+  border-radius:10px;
   border:none;
-  margin-top:10px;
+  width:70%;
 }
 
+/* CARD */
+.card {
+  background:#1a1f3a;
+  margin:15px;
+  padding:15px;
+  border-radius:15px;
+}
+
+/* NAV */
+.nav {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#1a1f3a;
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0;
+}
+
+.nav div {
+  color:gray;
+}
+
+.nav .active {
+  color:gold;
+}
 </style>
 </head>
 
 <body>
 
-<h1>🔥 UC SPIN PRO</h1>
+<div class="header">
+  <h3>💰 UC SPIN</h3>
+  <div class="balance-box" id="balance">0 UC</div>
+</div>
 
-<div class="wheel" id="wheel"></div>
+<div class="wheel-container">
+  <div class="pointer"></div>
 
-<button onclick="spin()">🎯 SPIN</button>
+  <canvas id="wheel" width="260" height="260"></canvas>
 
-<p>💰 Balance: <span id="balance">0</span> UC</p>
-<p id="timer"></p>
+  <button class="btn" onclick="spin()">🎡 SPIN</button>
 
-<input type="text" placeholder="PUBG ID yoz">
-<button onclick="alert('Yuborildi!')">💸 UC olish</button>
+  <p id="timer"></p>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  <input placeholder="PUBG ID yoz">
+  <button class="btn">💳 UC olish</button>
+</div>
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAzQffxHgkohxAy_zPecwQFzkdQzHmthxQ",
-  authDomain: "uc-spin-68a06.firebaseapp.com",
-  projectId: "uc-spin-68a06",
-  storageBucket: "uc-spin-68a06.firebasestorage.app",
-  messagingSenderId: "170537601588",
-  appId: "1:170537601588:web:ea2eb989d7c27641ba1861"
-};
+<div class="card">
+  <h3>👥 Do‘st taklif qilish</h3>
+  <button class="btn" onclick="invite()">Taklif qilish</button>
+</div>
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+<div class="nav">
+  <div class="active">🏠 Asosiy</div>
+  <div>📋 Vazifalar</div>
+  <div>👤 Mine</div>
+  <div>🏆 Reyting</div>
+  <div>💳 Hamyon</div>
+</div>
 
-let userId = "user1";
+<script>
 let balance = 0;
+let canSpin = true;
 
-async function loadData() {
-  const ref = doc(db, "users", userId);
-  const snap = await getDoc(ref);
+// KO‘RINADIGAN
+const segments = [
+  "0", "2", "1", "4", "5", "3", "50", "300", "100"
+];
 
-  if (snap.exists()) {
-    balance = snap.data().balance;
-  } else {
-    balance = 10;
-    await setDoc(ref, { balance: 10 });
+// FAqat tushadigan
+const realRewards = [0,2,1,4,5,3];
+
+// CHIZISH
+const canvas = document.getElementById("wheel");
+const ctx = canvas.getContext("2d");
+
+const colors = [
+  "#ff4d4d","#4dd2ff","#33ff77",
+  "#ffd633","#ff66ff","#66ccff",
+  "#ff9933","#cc66ff","#66ffcc"
+];
+
+function drawWheel() {
+  let angle = 2 * Math.PI / segments.length;
+
+  for (let i = 0; i < segments.length; i++) {
+    ctx.beginPath();
+    ctx.moveTo(130,130);
+    ctx.arc(130,130,130, i*angle, (i+1)*angle);
+    ctx.fillStyle = colors[i];
+    ctx.fill();
+
+    ctx.save();
+    ctx.translate(130,130);
+    ctx.rotate(i*angle + angle/2);
+    ctx.fillStyle = "black";
+    ctx.font = "bold 14px Arial";
+    ctx.fillText(segments[i]+" UC", 60, 5);
+    ctx.restore();
   }
-
-  document.getElementById("balance").innerText = balance;
 }
 
-loadData();
+drawWheel();
 
-let spinning = false;
+// SPIN
+function spin() {
+  if (!canSpin) {
+    alert("❌ Bugun aylantirgansiz!");
+    return;
+  }
 
-window.spin = async function() {
-  if (spinning) return;
-  spinning = true;
+  canSpin = false;
 
-  let deg = Math.floor(3600 + Math.random()*360);
-  document.getElementById("wheel").style.transform = "rotate(" + deg + "deg)";
+  let reward = realRewards[Math.floor(Math.random()*realRewards.length)];
+  let index = segments.indexOf(reward.toString());
 
-  setTimeout(async () => {
-    let win = Math.floor(Math.random()*10) + 1;
-    balance += win;
+  let deg = 360 * 5 + (index * (360 / segments.length));
 
-    document.getElementById("balance").innerText = balance;
+  canvas.style.transform = "rotate(" + deg + "deg)";
 
-    await setDoc(doc(db, "users", userId), { balance });
+  setTimeout(() => {
+    balance += reward;
+    document.getElementById("balance").innerText = balance + " UC";
+    alert("🎉 Siz yutdingiz: " + reward + " UC");
 
-    alert("🎉 Siz " + win + " UC yutdingiz!");
-
-    spinning = false;
+    localStorage.setItem("spinTime", Date.now());
   }, 4000);
-};
+}
+
+// 24 SOAT CHECK
+window.onload = function() {
+  let t = localStorage.getItem("spinTime");
+
+  if (t) {
+    let diff = Date.now() - t;
+    let h = diff / (1000*60*60);
+
+    if (h < 24) {
+      canSpin = false;
+      document.getElementById("timer").innerText = "⏳ Keyingi spin: 24 soat";
+    }
+  }
+}
+
+// INVITE
+function invite() {
+  balance += 1;
+  document.getElementById("balance").innerText = balance + " UC";
+  alert("🎁 1 UC qo‘shildi");
+}
 </script>
 
 </body>
