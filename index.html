@@ -3,161 +3,231 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UC Bonus App</title>
+<title>UC Spin Pro</title>
 
 <style>
 body {
-    margin: 0;
-    font-family: Arial;
-    background: #0f172a;
-    color: white;
-    text-align: center;
+    margin:0;
+    font-family:Arial;
+    background:#0f172a;
+    color:white;
+    text-align:center;
 }
 
-h1 {
-    margin-top: 10px;
-}
+.section { display:none; padding:15px; }
+.active { display:block; }
 
-.container {
-    padding: 15px;
-}
+h2 { margin-top:10px; }
 
-/* BARABAN */
 .wheel {
-    width: 250px;
-    height: 250px;
-    border-radius: 50%;
-    margin: 20px auto;
+    width:260px;
+    height:260px;
+    border-radius:50%;
+    margin:20px auto;
     background: conic-gradient(
-        #ff0000 0% 25%,
-        #00ff00 25% 50%,
-        #0000ff 50% 75%,
-        #ffff00 75% 100%
+        #facc15 0deg 60deg,
+        #22c55e 60deg 120deg,
+        #3b82f6 120deg 180deg,
+        #ec4899 180deg 240deg,
+        #f97316 240deg 300deg,
+        #a855f7 300deg 360deg
     );
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:bold;
     transition: transform 4s ease-out;
 }
 
 button {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-    background: #22c55e;
-    color: white;
-    font-size: 16px;
+    padding:12px;
+    margin:5px;
+    border:none;
+    border-radius:10px;
+    background:#22c55e;
+    color:white;
 }
 
-/* MENU */
-.menu {
-    position: fixed;
-    bottom: 0;
-    width: 100%;
-    display: flex;
-    justify-content: space-around;
-    background: #111827;
-    padding: 10px 0;
-}
-
-.menu div {
-    font-size: 12px;
-}
-
-.big {
-    font-size: 18px;
-    font-weight: bold;
-}
-
-/* CARDS */
 .card {
-    background: #1e293b;
-    margin: 10px;
-    padding: 15px;
-    border-radius: 15px;
+    background:#1e293b;
+    margin:10px;
+    padding:15px;
+    border-radius:15px;
+}
+
+.menu {
+    position:fixed;
+    bottom:0;
+    width:100%;
+    display:flex;
+    justify-content:space-around;
+    background:#111827;
+    padding:10px;
+}
+
+.menu div { font-size:12px; }
+
+input {
+    padding:10px;
+    border-radius:10px;
+    border:none;
+    width:80%;
+    margin:10px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🎁 UC BONUS</h1>
+<h2>🎁 UC SPIN PRO</h2>
 
-<div class="container">
-
+<!-- ASOSIY -->
+<div id="home" class="section active">
 <div class="card">
-<div class="big">🎡 Baraban</div>
-<div class="wheel" id="wheel"></div>
+<h3>🎡 Baraban</h3>
+<div class="wheel" id="wheel">SPIN</div>
 <button onclick="spin()">Aylantirish</button>
+<p id="timer"></p>
+</div>
 </div>
 
+<!-- VAZIFA -->
+<div id="tasks" class="section">
 <div class="card">
-<div class="big">💰 Balans: <span id="balans">0</span> UC</div>
-</div>
-
-<div class="card">
-<div class="big">👥 Do‘st taklif qilish</div>
-<p>Har do‘st = 10 UC</p>
+<h3>👥 Do‘st taklif qilish</h3>
+<p>Faqat 1 marta: +10 UC</p>
 <button onclick="invite()">Taklif qilish</button>
 </div>
+</div>
 
+<!-- MINE -->
+<div id="mine" class="section">
 <div class="card">
-<div class="big">💳 Hamyon</div>
+<h3>⛏ UC yig‘ish</h3>
+<button onclick="mine()">+2 UC</button>
+</div>
+</div>
+
+<!-- REYTING -->
+<div id="rating" class="section">
+<div class="card">
+<h3>🏆 Reyting</h3>
+<p>Sening balansing: <span id="balans">0</span> UC</p>
+</div>
+</div>
+
+<!-- HAMYON -->
+<div id="wallet" class="section">
+<div class="card">
+<h3>💳 UC chiqarish</h3>
+<input id="pubgId" placeholder="PUBG ID yoz">
+<br>
 <button onclick="withdraw(60)">60 UC</button>
 <button onclick="withdraw(120)">120 UC</button>
 </div>
-
 </div>
 
+<!-- MENU -->
 <div class="menu">
-<div>🏠<br>Asosiy</div>
-<div>🎯<br>Vazifalar</div>
-<div>⛏<br>Mine</div>
-<div>🏆<br>Reyting</div>
-<div>💳<br>Hamyon</div>
+<div onclick="show('home')">🏠<br>Asosiy</div>
+<div onclick="show('tasks')">🎯<br>Vazifa</div>
+<div onclick="show('mine')">⛏<br>Mine</div>
+<div onclick="show('rating')">🏆<br>Reyting</div>
+<div onclick="show('wallet')">💳<br>Hamyon</div>
 </div>
 
 <script>
-let balans = localStorage.getItem("balans") || 0;
+let balans = Number(localStorage.getItem("balans")) || 0;
 document.getElementById("balans").innerText = balans;
 
-function spin() {
+function show(id){
+    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+}
+
+function spin(){
     let last = localStorage.getItem("lastSpin");
     let now = Date.now();
 
-    if (last && now - last < 86400000) {
-        alert("❌ Bugun aylantirding!");
+    if(last && now - last < 86400000){
         return;
     }
 
     let wheel = document.getElementById("wheel");
-    let deg = Math.floor(Math.random() * 3600);
-    wheel.style.transform = "rotate(" + deg + "deg)";
+    let deg = Math.floor(Math.random()*3600);
+    wheel.style.transform = "rotate("+deg+"deg)";
 
-    let reward = Math.random() < 0.8 ? 5 : 50; // kichik ko‘p tushadi
-    balans = Number(balans) + reward;
+    let reward = Math.random()<0.8 ? 5 : 50;
+    balans += reward;
 
-    setTimeout(() => {
-        alert("🎉 Yutding: " + reward + " UC");
+    setTimeout(()=>{
+        alert("🎉 "+reward+" UC yutding");
+        localStorage.setItem("balans",balans);
+        localStorage.setItem("lastSpin",now);
         document.getElementById("balans").innerText = balans;
-        localStorage.setItem("balans", balans);
-        localStorage.setItem("lastSpin", now);
-    }, 4000);
+    },4000);
 }
 
-function invite() {
-    balans = Number(balans) + 10;
-    alert("Do‘st qo‘shildi +10 UC");
-    document.getElementById("balans").innerText = balans;
-    localStorage.setItem("balans", balans);
-}
+function updateTimer(){
+    let last = localStorage.getItem("lastSpin");
+    if(!last) return;
 
-function withdraw(amount) {
-    if (balans >= amount) {
-        balans -= amount;
-        alert(amount + " UC chiqarildi (admin orqali)");
-    } else {
-        alert("❌ Yetarli UC yo‘q");
+    let now = Date.now();
+    let left = 86400000 - (now - last);
+
+    if(left <= 0){
+        document.getElementById("timer").innerText="Yana aylantirsa bo‘ladi!";
+        return;
     }
-    document.getElementById("balans").innerText = balans;
-    localStorage.setItem("balans", balans);
+
+    let h = Math.floor(left/3600000);
+    let m = Math.floor((left%3600000)/60000);
+    let s = Math.floor((left%60000)/1000);
+
+    document.getElementById("timer").innerText=
+    "⏳ "+h+" soat "+m+" min "+s+" sek";
+}
+
+setInterval(updateTimer,1000);
+
+function invite(){
+    if(localStorage.getItem("invited")){
+        alert("❌ Allaqachon olding");
+        return;
+    }
+    balans+=10;
+    localStorage.setItem("balans",balans);
+    localStorage.setItem("invited",true);
+    alert("+10 UC qo‘shildi");
+    document.getElementById("balans").innerText=balans;
+}
+
+function mine(){
+    balans+=2;
+    localStorage.setItem("balans",balans);
+    document.getElementById("balans").innerText=balans;
+}
+
+function withdraw(amount){
+    let id=document.getElementById("pubgId").value;
+    if(!id){
+        alert("ID yoz!");
+        return;
+    }
+
+    if(balans<amount){
+        alert("UC yetarli emas");
+        return;
+    }
+
+    let msg = `Salom, ${amount} UC olish uchun\nID: ${id}`;
+    let link = "https://t.me/Doniyor_0819?text="+encodeURIComponent(msg);
+
+    window.open(link,"_blank");
+
+    balans-=amount;
+    localStorage.setItem("balans",balans);
+    document.getElementById("balans").innerText=balans;
 }
 </script>
 
