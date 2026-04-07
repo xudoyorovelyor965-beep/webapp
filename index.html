@@ -1,243 +1,184 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WEBDROP</title>
 
 <style>
 body {
   margin:0;
-  background:#0c1022;
-  color:white;
   font-family:sans-serif;
+  background:#0b0f2a;
+  color:white;
   text-align:center;
 }
 
-/* HEADER */
 .header {
   display:flex;
   justify-content:space-between;
   padding:15px;
-  background:#1a1f3a;
+  background:#1b1f3a;
 }
 
-.balance {
+.uc {
   background:gold;
   color:black;
   padding:5px 15px;
   border-radius:20px;
 }
 
-/* WHEEL */
-#wheel {
-  width:300px;
-  height:300px;
+.wheel {
+  width:260px;
+  height:260px;
   border-radius:50%;
+  margin:20px auto;
   border:8px solid gold;
-  margin:30px auto;
-  transition:4s;
+  background:conic-gradient(
+    #f1c40f 0deg 40deg,
+    #2ecc71 40deg 80deg,
+    #3498db 80deg 120deg,
+    #9b59b6 120deg 160deg,
+    #e67e22 160deg 200deg,
+    #e74c3c 200deg 240deg,
+    #1abc9c 240deg 280deg,
+    #f39c12 280deg 320deg,
+    #ecf0f1 320deg 360deg
+  );
+  transition: transform 4s ease-out;
 }
 
-/* BUTTON */
 button {
   background:gold;
   border:none;
   padding:12px 25px;
-  border-radius:20px;
-  font-size:16px;
-  cursor:pointer;
+  border-radius:25px;
+  margin:10px;
+  font-weight:bold;
 }
 
-/* CARD */
 .card {
-  background:#1a1f3a;
+  background:#1b1f3a;
   margin:15px;
   padding:15px;
   border-radius:15px;
 }
 
-/* INPUT */
-input {
+.nav {
+  position:fixed;
+  bottom:0;
+  width:100%;
+  background:#1b1f3a;
+  display:flex;
+  justify-content:space-around;
   padding:10px;
-  width:80%;
-  border-radius:10px;
-  border:none;
-  margin:10px;
 }
-
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  <h3>WEBDROP</h3>
-  <div class="balance" id="balance">0 UC</div>
+  <b>WEBDROP</b>
+  <div class="uc" id="balance">0 UC</div>
 </div>
 
 <h3>🎡 Spin</h3>
-
-<img id="wheel" src="https://i.imgur.com/4NZ6uLY.png">
-
-<br>
+<div id="wheel" class="wheel"></div>
 <button onclick="spin()">SPIN</button>
 
 <div class="card">
-  <h3>👥 Do‘st taklif</h3>
-  <p id="ref">link...</p>
+  👥 Referal link:
+  <p id="ref"></p>
 </div>
 
 <div class="card">
-  <h3>📋 Vazifalar</h3>
-  <button onclick="task('yt')">YouTube</button>
-  <button onclick="task('ig')">Instagram</button>
-  <button onclick="task('tg')">Telegram</button>
+  📋 Vazifalar <br><br>
+  <button onclick="task()">YouTube</button>
+  <button onclick="task()">Instagram</button>
+  <button onclick="task()">Telegram</button>
 </div>
 
 <div class="card">
-  <h3>💳 UC olish</h3>
-  <input id="pubg" placeholder="PUBG ID">
-  <br>
-  <button onclick="withdraw(60)">60 UC</button>
-  <button onclick="withdraw(120)">120 UC</button>
+  💳 UC olish <br><br>
+  <input id="pubg" placeholder="PUBG ID"><br><br>
+  <button onclick="requestUC(60)">60 UC</button>
+  <button onclick="requestUC(120)">120 UC</button>
 </div>
 
 <div class="card">
-  <h3>🏆 Reyting</h3>
-  <div id="top"></div>
+  🏆 Reyting
+  <p id="top"></p>
 </div>
 
-<script type="module">
+<div class="nav">
+  <span>🏠</span>
+  <span>📋</span>
+  <span>👤</span>
+  <span>🏆</span>
+  <span>💰</span>
+</div>
 
-// 🔥 FIREBASE CONFIG (o‘zing qo‘yasan)
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
-
-const firebaseConfig = {
-  apiKey: "API_KEY",
-  authDomain: "PROJECT.firebaseapp.com",
-  databaseURL: "https://PROJECT-default-rtdb.firebaseio.com",
-  projectId: "PROJECT",
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// USER ID
-const user = localStorage.getItem("uid") || Date.now();
-localStorage.setItem("uid", user);
+<script>
+// LOCAL DATA
+let balance = localStorage.getItem("uc") || 0;
+document.getElementById("balance").innerText = balance + " UC";
 
 // REFERAL
-const refLink = location.href + "?ref=" + user;
-document.getElementById("ref").innerText = refLink;
-
-// USER LOAD
-async function loadUser() {
-  const snap = await get(ref(db, "users/" + user));
-  if (!snap.exists()) {
-    await set(ref(db, "users/" + user), {
-      uc: 0,
-      clicks: 0,
-      ref: 0
-    });
-  }
-  updateUI();
+let id = localStorage.getItem("id");
+if(!id){
+  id = Math.floor(Math.random()*999999);
+  localStorage.setItem("id", id);
 }
-loadUser();
+document.getElementById("ref").innerText =
+location.href + "?ref=" + id;
 
-// UPDATE UI
-async function updateUI() {
-  const snap = await get(ref(db, "users/" + user));
-  const data = snap.val();
-  document.getElementById("balance").innerText = data.uc + " UC";
-}
-
-// 🎡 SPIN LOGIKA
+// SPIN LOGIKA
 const rewards = [2,1,4,5,3];
 
-window.spin = async function() {
-  const last = localStorage.getItem("spin");
-  const now = Date.now();
+function spin(){
+  let last = localStorage.getItem("spin");
+  let now = Date.now();
 
-  if (last && now - last < 86400000) {
-    alert("❌ Ertaga urinib ko‘ring");
+  if(last && now - last < 86400000){
+    alert("Ertaga urinib ko‘ring");
     return;
   }
 
-  const win = rewards[Math.floor(Math.random()*rewards.length)];
+  let win = rewards[Math.floor(Math.random()*rewards.length)];
 
-  // animatsiya
+  let deg = 3600 + Math.random()*360;
   document.getElementById("wheel").style.transform =
-    "rotate(" + (3600 + Math.random()*360) + "deg)";
+    "rotate("+deg+"deg)";
 
-  setTimeout(async ()=>{
-    const userRef = ref(db, "users/" + user);
-    const snap = await get(userRef);
-    let data = snap.val();
-
-    data.uc += win;
-
-    await update(userRef, data);
-    updateUI();
-
-    alert("🎉 Siz yutdingiz: " + win + " UC");
-
+  setTimeout(()=>{
+    balance = Number(balance) + win;
+    localStorage.setItem("uc", balance);
     localStorage.setItem("spin", now);
+    document.getElementById("balance").innerText = balance+" UC";
+    alert("Yutding: "+win+" UC");
   },4000);
 }
 
-// 📋 TASK
-window.task = async function(type){
-  const userRef = ref(db, "users/" + user);
-  const snap = await get(userRef);
-  let data = snap.val();
-
-  data.clicks += 1;
-  data.uc += 1;
-
-  await update(userRef, data);
-  updateUI();
-
-  alert("✅ +1 UC qo‘shildi");
+// TASK
+function task(){
+  balance = Number(balance) + 1;
+  localStorage.setItem("uc", balance);
+  document.getElementById("balance").innerText = balance+" UC";
 }
 
-// 💳 UC OLISH
-window.withdraw = async function(amount){
-  const pubg = document.getElementById("pubg").value;
+// UC REQUEST (ADMIN)
+function requestUC(amount){
+  let pubg = document.getElementById("pubg").value;
+  if(!pubg) return alert("ID kiriting");
 
-  if (!pubg) return alert("PUBG ID kiriting");
-
-  const snap = await get(ref(db, "users/" + user));
-  let data = snap.val();
-
-  if (data.uc < amount) return alert("UC yetarli emas");
-
-  data.uc -= amount;
-
-  await update(ref(db,"users/"+user), data);
-
-  // ADMIN MESSAGE (Telegramga yuborish uchun)
-  alert("✅ So‘rov yuborildi (admin tekshiradi)");
-
-  updateUI();
+  let msg = "UC so‘rov\nID: "+pubg+"\nAmount: "+amount;
+  window.open("https://t.me/Doniyor_0819?text="+encodeURIComponent(msg));
 }
 
-// 🏆 TOP
-async function loadTop(){
-  const snap = await get(ref(db,"users"));
-  let users = snap.val();
-
-  let arr = Object.values(users);
-  arr.sort((a,b)=>b.uc - a.uc);
-
-  let html="";
-  arr.slice(0,5).forEach((u,i)=>{
-    html += `<p>#${i+1} — ${u.uc} UC</p>`;
-  });
-
-  document.getElementById("top").innerHTML = html;
-}
-loadTop();
+// FAKE REYTING
+document.getElementById("top").innerHTML =
+"#1 200 UC<br>#2 150 UC<br>#3 100 UC";
 
 </script>
 
