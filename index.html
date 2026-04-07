@@ -2,233 +2,166 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UC Spin Pro</title>
+<title>UC SPIN PRO</title>
 
 <style>
 body {
-    margin:0;
-    font-family:Arial;
-    background:#0f172a;
-    color:white;
-    text-align:center;
+  font-family: Arial;
+  text-align: center;
+  background: #0f172a;
+  color: white;
 }
 
-.section { display:none; padding:15px; }
-.active { display:block; }
-
-h2 { margin-top:10px; }
-
-.wheel {
-    width:260px;
-    height:260px;
-    border-radius:50%;
-    margin:20px auto;
-    background: conic-gradient(
-        #facc15 0deg 60deg,
-        #22c55e 60deg 120deg,
-        #3b82f6 120deg 180deg,
-        #ec4899 180deg 240deg,
-        #f97316 240deg 300deg,
-        #a855f7 300deg 360deg
-    );
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    font-weight:bold;
-    transition: transform 4s ease-out;
+#wheel {
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  border: 10px solid gold;
+  margin: 20px auto;
+  transition: transform 3s ease-out;
+  background: conic-gradient(
+    #ff0000 0deg 60deg,
+    #00ffcc 60deg 120deg,
+    #ffcc00 120deg 180deg,
+    #ff00ff 180deg 240deg,
+    #00ff00 240deg 300deg,
+    #00ccff 300deg 360deg
+  );
 }
 
 button {
-    padding:12px;
-    margin:5px;
-    border:none;
-    border-radius:10px;
-    background:#22c55e;
-    color:white;
+  padding: 10px 20px;
+  font-size: 18px;
+  background: gold;
+  border: none;
+  border-radius: 10px;
 }
 
-.card {
-    background:#1e293b;
-    margin:10px;
-    padding:15px;
-    border-radius:15px;
-}
-
-.menu {
-    position:fixed;
-    bottom:0;
-    width:100%;
-    display:flex;
-    justify-content:space-around;
-    background:#111827;
-    padding:10px;
-}
-
-.menu div { font-size:12px; }
-
-input {
-    padding:10px;
-    border-radius:10px;
-    border:none;
-    width:80%;
-    margin:10px;
+.box {
+  margin-top: 20px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>🎁 UC SPIN PRO</h2>
+<h1>🔥 UC SPIN PRO</h1>
 
-<!-- ASOSIY -->
-<div id="home" class="section active">
-<div class="card">
-<h3>🎡 Baraban</h3>
-<div class="wheel" id="wheel">SPIN</div>
-<button onclick="spin()">Aylantirish</button>
-<p id="timer"></p>
-</div>
-</div>
+<div id="wheel"></div>
 
-<!-- VAZIFA -->
-<div id="tasks" class="section">
-<div class="card">
-<h3>👥 Do‘st taklif qilish</h3>
-<p>Faqat 1 marta: +10 UC</p>
-<button onclick="invite()">Taklif qilish</button>
-</div>
+<button onclick="spin()">🎡 SPIN</button>
+
+<div class="box">
+<h2>💰 Balance: <span id="balance">0</span> UC</h2>
+<h3>⏱ Keyingi aylanish: <span id="timer">00:00:00</span></h3>
 </div>
 
-<!-- MINE -->
-<div id="mine" class="section">
-<div class="card">
-<h3>⛏ UC yig‘ish</h3>
-<button onclick="mine()">+2 UC</button>
-</div>
+<div class="box">
+<input id="userId" placeholder="PUBG ID yoz">
+<button onclick="withdraw()">💸 UC olish</button>
 </div>
 
-<!-- REYTING -->
-<div id="rating" class="section">
-<div class="card">
-<h3>🏆 Reyting</h3>
-<p>Sening balansing: <span id="balans">0</span> UC</p>
-</div>
-</div>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
-<!-- HAMYON -->
-<div id="wallet" class="section">
-<div class="card">
-<h3>💳 UC chiqarish</h3>
-<input id="pubgId" placeholder="PUBG ID yoz">
-<br>
-<button onclick="withdraw(60)">60 UC</button>
-<button onclick="withdraw(120)">120 UC</button>
-</div>
-</div>
+const firebaseConfig = {
+  apiKey: "AIzaSyAzQffxHgkohxAy_zPecwQFzkdQzHmthxQ",
+  authDomain: "uc-spin-68a06.firebaseapp.com",
+  projectId: "uc-spin-68a06",
+  storageBucket: "uc-spin-68a06.firebasestorage.app",
+  messagingSenderId: "170537601588",
+  appId: "1:170537601588:web:ea2eb989d7c27641ba1861",
+};
 
-<!-- MENU -->
-<div class="menu">
-<div onclick="show('home')">🏠<br>Asosiy</div>
-<div onclick="show('tasks')">🎯<br>Vazifa</div>
-<div onclick="show('mine')">⛏<br>Mine</div>
-<div onclick="show('rating')">🏆<br>Reyting</div>
-<div onclick="show('wallet')">💳<br>Hamyon</div>
-</div>
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
 
-<script>
-let balans = Number(localStorage.getItem("balans")) || 0;
-document.getElementById("balans").innerText = balans;
+let user = localStorage.getItem("user") || Math.random().toString(36).substring(7);
+localStorage.setItem("user", user);
 
-function show(id){
-    document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-    document.getElementById(id).classList.add("active");
+const balanceEl = document.getElementById("balance");
+const timerEl = document.getElementById("timer");
+
+let lastSpin = 0;
+
+async function loadUser() {
+  const ref = doc(db, "users", user);
+  const snap = await getDoc(ref);
+
+  if (snap.exists()) {
+    const data = snap.data();
+    balanceEl.innerText = data.balance || 0;
+    lastSpin = data.lastSpin || 0;
+  } else {
+    await setDoc(ref, { balance: 0, lastSpin: 0 });
+  }
 }
 
-function spin(){
-    let last = localStorage.getItem("lastSpin");
-    let now = Date.now();
+loadUser();
 
-    if(last && now - last < 86400000){
-        return;
-    }
+window.spin = async function () {
+  let now = Date.now();
 
-    let wheel = document.getElementById("wheel");
-    let deg = Math.floor(Math.random()*3600);
-    wheel.style.transform = "rotate("+deg+"deg)";
+  if (now - lastSpin < 86400000) {
+    alert("⛔ 24 soat kuting!");
+    return;
+  }
 
-    let reward = Math.random()<0.8 ? 5 : 50;
-    balans += reward;
+  let deg = Math.floor(Math.random() * 360) + 720;
+  document.getElementById("wheel").style.transform = `rotate(${deg}deg)`;
 
-    setTimeout(()=>{
-        alert("🎉 "+reward+" UC yutding");
-        localStorage.setItem("balans",balans);
-        localStorage.setItem("lastSpin",now);
-        document.getElementById("balans").innerText = balans;
-    },4000);
-}
+  let uc = Math.floor(Math.random() * 50) + 10;
 
-function updateTimer(){
-    let last = localStorage.getItem("lastSpin");
-    if(!last) return;
+  setTimeout(async () => {
+    balanceEl.innerText = Number(balanceEl.innerText) + uc;
+    lastSpin = now;
 
-    let now = Date.now();
-    let left = 86400000 - (now - last);
+    await updateDoc(doc(db, "users", user), {
+      balance: Number(balanceEl.innerText),
+      lastSpin: lastSpin
+    });
 
-    if(left <= 0){
-        document.getElementById("timer").innerText="Yana aylantirsa bo‘ladi!";
-        return;
-    }
+    alert("🎉 Siz yutdingiz: " + uc + " UC");
+  }, 3000);
+};
 
-    let h = Math.floor(left/3600000);
-    let m = Math.floor((left%3600000)/60000);
-    let s = Math.floor((left%60000)/1000);
+setInterval(() => {
+  let now = Date.now();
+  let diff = 86400000 - (now - lastSpin);
 
-    document.getElementById("timer").innerText=
-    "⏳ "+h+" soat "+m+" min "+s+" sek";
-}
+  if (diff < 0) {
+    timerEl.innerText = "READY";
+    return;
+  }
 
-setInterval(updateTimer,1000);
+  let h = Math.floor(diff / 3600000);
+  let m = Math.floor((diff % 3600000) / 60000);
+  let s = Math.floor((diff % 60000) / 1000);
 
-function invite(){
-    if(localStorage.getItem("invited")){
-        alert("❌ Allaqachon olding");
-        return;
-    }
-    balans+=10;
-    localStorage.setItem("balans",balans);
-    localStorage.setItem("invited",true);
-    alert("+10 UC qo‘shildi");
-    document.getElementById("balans").innerText=balans;
-}
+  timerEl.innerText = `${h}:${m}:${s}`;
+}, 1000);
 
-function mine(){
-    balans+=2;
-    localStorage.setItem("balans",balans);
-    document.getElementById("balans").innerText=balans;
-}
+window.withdraw = function () {
+  let id = document.getElementById("userId").value;
 
-function withdraw(amount){
-    let id=document.getElementById("pubgId").value;
-    if(!id){
-        alert("ID yoz!");
-        return;
-    }
+  if (!id) {
+    alert("ID yoz!");
+    return;
+  }
 
-    if(balans<amount){
-        alert("UC yetarli emas");
-        return;
-    }
+  let bal = Number(balanceEl.innerText);
 
-    let msg = `Salom, ${amount} UC olish uchun\nID: ${id}`;
-    let link = "https://t.me/Doniyor_0819?text="+encodeURIComponent(msg);
+  if (bal < 60) {
+    alert("⛔ Kamida 60 UC kerak!");
+    return;
+  }
 
-    window.open(link,"_blank");
+  let text = `ID: ${id} UC: ${bal}`;
+  window.open(`https://t.me/Doniyor_0819?text=${encodeURIComponent(text)}`);
 
-    balans-=amount;
-    localStorage.setItem("balans",balans);
-    document.getElementById("balans").innerText=balans;
-}
+  alert("Adminga yuborildi!");
+};
 </script>
 
 </body>
