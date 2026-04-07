@@ -8,7 +8,7 @@
 <style>
 body {
   margin:0;
-  font-family: Arial;
+  font-family:Arial;
   background:#0b1020;
   color:white;
   text-align:center;
@@ -32,20 +32,6 @@ body {
 }
 
 /* WHEEL */
-.wheel-container {
-  margin-top:30px;
-}
-
-#wheel {
-  width:260px;
-  height:260px;
-  border-radius:50%;
-  border:6px solid gold;
-  margin:auto;
-  transition:transform 4s ease-out;
-}
-
-/* POINTER */
 .pointer {
   width:0;
   height:0;
@@ -55,20 +41,26 @@ body {
   margin:10px auto;
 }
 
+#wheel {
+  border-radius:50%;
+  border:6px solid gold;
+  margin:auto;
+  transition:transform 4s ease-out;
+}
+
 /* BUTTON */
 .btn {
-  margin-top:20px;
+  margin-top:15px;
   padding:12px 25px;
   border:none;
   border-radius:20px;
   background:gold;
   font-weight:bold;
-  cursor:pointer;
 }
 
 /* INPUT */
 input {
-  margin-top:15px;
+  margin-top:10px;
   padding:10px;
   border-radius:10px;
   border:none;
@@ -94,13 +86,7 @@ input {
   padding:10px 0;
 }
 
-.nav div {
-  color:gray;
-}
-
-.nav .active {
-  color:gold;
-}
+.page { padding-bottom:80px; }
 </style>
 </head>
 
@@ -111,121 +97,170 @@ input {
   <div class="balance-box" id="balance">0 UC</div>
 </div>
 
-<div class="wheel-container">
-  <div class="pointer"></div>
+<!-- HOME -->
+<div id="home" class="page">
 
-  <canvas id="wheel" width="260" height="260"></canvas>
+<div class="pointer"></div>
+<canvas id="wheel"></canvas>
 
-  <button class="btn" onclick="spin()">🎡 SPIN</button>
+<button class="btn" onclick="spin()">🎡 SPIN</button>
+<p id="timer"></p>
 
-  <p id="timer"></p>
-
-  <input placeholder="PUBG ID yoz">
-  <button class="btn">💳 UC olish</button>
-</div>
+<input placeholder="PUBG ID yoz">
+<button class="btn">💳 UC olish</button>
 
 <div class="card">
   <h3>👥 Do‘st taklif qilish</h3>
-  <button class="btn" onclick="invite()">Taklif qilish</button>
+  <button class="btn" onclick="invite()">Taklif qilish +1 UC</button>
 </div>
 
+</div>
+
+<!-- TASKS -->
+<div id="tasks" class="page" style="display:none">
+  <h2>📋 Vazifalar</h2>
+  <button class="btn" onclick="watchAd()">📺 Video → +2 UC</button>
+  <button class="btn" onclick="joinTelegram()">📢 Telegram → +3 UC</button>
+</div>
+
+<!-- PROFILE -->
+<div id="profile" class="page" style="display:none">
+  <h2>👤 Profil</h2>
+  <p>User ID: 123456</p>
+</div>
+
+<!-- RATING -->
+<div id="rating" class="page" style="display:none">
+  <h2>🏆 Reyting</h2>
+  <p>1. Player - 100 UC</p>
+</div>
+
+<!-- WALLET -->
+<div id="wallet" class="page" style="display:none">
+  <h2>💳 Hamyon</h2>
+  <p>Balans: <span id="balance2">0</span> UC</p>
+</div>
+
+<!-- NAV -->
 <div class="nav">
-  <div class="active">🏠 Asosiy</div>
-  <div>📋 Vazifalar</div>
-  <div>👤 Mine</div>
-  <div>🏆 Reyting</div>
-  <div>💳 Hamyon</div>
+  <div onclick="showPage('home')">🏠</div>
+  <div onclick="showPage('tasks')">📋</div>
+  <div onclick="showPage('profile')">👤</div>
+  <div onclick="showPage('rating')">🏆</div>
+  <div onclick="showPage('wallet')">💳</div>
 </div>
 
 <script>
+// BALANCE
 let balance = 0;
 let canSpin = true;
 
-// KO‘RINADIGAN
-const segments = [
-  "0", "2", "1", "4", "5", "3", "50", "300", "100"
-];
-
-// FAqat tushadigan
-const realRewards = [0,2,1,4,5,3];
-
-// CHIZISH
+// CANVAS HD
 const canvas = document.getElementById("wheel");
 const ctx = canvas.getContext("2d");
 
+const size = 260;
+canvas.width = size * 2;
+canvas.height = size * 2;
+canvas.style.width = size + "px";
+canvas.style.height = size + "px";
+
+ctx.scale(2,2);
+
+// SEGMENTS
+const segments = ["0","2","1","4","5","3","50","300","100"];
+const realRewards = [0,2,1,4,5,3];
+
 const colors = [
-  "#ff4d4d","#4dd2ff","#33ff77",
-  "#ffd633","#ff66ff","#66ccff",
-  "#ff9933","#cc66ff","#66ffcc"
+"#ff3b3b","#00c2ff","#00ff88",
+"#ffd500","#ff00d4","#00aaff",
+"#ff8800","#aa00ff","#00ffd5"
 ];
 
+// DRAW
 function drawWheel() {
-  let angle = 2 * Math.PI / segments.length;
+  let angle = 2*Math.PI/segments.length;
 
-  for (let i = 0; i < segments.length; i++) {
+  for(let i=0;i<segments.length;i++){
     ctx.beginPath();
     ctx.moveTo(130,130);
-    ctx.arc(130,130,130, i*angle, (i+1)*angle);
-    ctx.fillStyle = colors[i];
+    ctx.arc(130,130,130,i*angle,(i+1)*angle);
+    ctx.fillStyle=colors[i];
     ctx.fill();
 
     ctx.save();
     ctx.translate(130,130);
     ctx.rotate(i*angle + angle/2);
-    ctx.fillStyle = "black";
-    ctx.font = "bold 14px Arial";
-    ctx.fillText(segments[i]+" UC", 60, 5);
+    ctx.fillStyle="#111";
+    ctx.font="bold 16px Arial";
+    ctx.fillText(segments[i]+" UC",60,5);
     ctx.restore();
   }
 }
-
 drawWheel();
 
 // SPIN
-function spin() {
-  if (!canSpin) {
-    alert("❌ Bugun aylantirgansiz!");
+function spin(){
+  if(!canSpin){
+    alert("❌ Bugun aylantirgansiz");
     return;
   }
 
-  canSpin = false;
+  canSpin=false;
 
   let reward = realRewards[Math.floor(Math.random()*realRewards.length)];
   let index = segments.indexOf(reward.toString());
 
-  let deg = 360 * 5 + (index * (360 / segments.length));
+  let deg = 360*5 + index*(360/segments.length);
+  canvas.style.transform = "rotate("+deg+"deg)";
 
-  canvas.style.transform = "rotate(" + deg + "deg)";
-
-  setTimeout(() => {
+  setTimeout(()=>{
     balance += reward;
-    document.getElementById("balance").innerText = balance + " UC";
-    alert("🎉 Siz yutdingiz: " + reward + " UC");
-
-    localStorage.setItem("spinTime", Date.now());
-  }, 4000);
+    updateBalance();
+    alert("🎉 "+reward+" UC tushdi");
+    localStorage.setItem("spinTime",Date.now());
+  },4000);
 }
 
-// 24 SOAT CHECK
-window.onload = function() {
+// TIMER
+window.onload=function(){
   let t = localStorage.getItem("spinTime");
-
-  if (t) {
-    let diff = Date.now() - t;
-    let h = diff / (1000*60*60);
-
-    if (h < 24) {
-      canSpin = false;
-      document.getElementById("timer").innerText = "⏳ Keyingi spin: 24 soat";
+  if(t){
+    let diff = Date.now()-t;
+    if(diff < 86400000){
+      canSpin=false;
+      document.getElementById("timer").innerText="⏳ 24 soatda 1 marta";
     }
   }
 }
 
+// UPDATE
+function updateBalance(){
+  document.getElementById("balance").innerText=balance+" UC";
+  document.getElementById("balance2").innerText=balance;
+}
+
 // INVITE
-function invite() {
-  balance += 1;
-  document.getElementById("balance").innerText = balance + " UC";
-  alert("🎁 1 UC qo‘shildi");
+function invite(){
+  balance+=1;
+  updateBalance();
+}
+
+// TASKS
+function watchAd(){
+  balance+=2;
+  updateBalance();
+}
+
+function joinTelegram(){
+  balance+=3;
+  updateBalance();
+}
+
+// NAV
+function showPage(p){
+  document.querySelectorAll(".page").forEach(x=>x.style.display="none");
+  document.getElementById(p).style.display="block";
 }
 </script>
 
