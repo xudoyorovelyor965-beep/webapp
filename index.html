@@ -1,74 +1,63 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html>
 <head>
 <meta charset="UTF-8">
-<title>UC SPIN</title>
+<title>WEBDROP</title>
 
 <style>
-body{
+body {
   margin:0;
-  font-family:Arial;
-  background:#0b1220;
+  background:#0c1022;
   color:white;
+  font-family:sans-serif;
   text-align:center;
 }
 
-.header{
+/* HEADER */
+.header {
   display:flex;
   justify-content:space-between;
   padding:15px;
-  background:#111a2f;
-  font-weight:bold;
+  background:#1a1f3a;
 }
 
-.uc{
+.balance {
   background:gold;
   color:black;
-  padding:5px 12px;
+  padding:5px 15px;
   border-radius:20px;
 }
 
-#wheel{
+/* WHEEL */
+#wheel {
   width:300px;
   height:300px;
-  border-radius 100%;
+  border-radius:50%;
   border:8px solid gold;
   margin:30px auto;
-  position:relative;
-  overflow:hidden;
+  transition:4s;
 }
 
-.segment{
-  position:absolute;
-  width:100%;
-  height:100%;
-  transform-origin:100% 100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:200px;
-}
-
-.arrow{
-  width:0;
-  height:0;
-  border-left:50px solid transparent;
-  border-right:50px solid transparent;
-  border-bottom:50px solid red;
-  margin:auto;
-}
-
-button{
-  padding:12px 25px;
+/* BUTTON */
+button {
   background:gold;
   border:none;
-  border-radius:25px;
-  font-weight:bold;
-  margin:10px;
+  padding:12px 25px;
+  border-radius:20px;
+  font-size:16px;
   cursor:pointer;
 }
 
-input{
+/* CARD */
+.card {
+  background:#1a1f3a;
+  margin:15px;
+  padding:15px;
+  border-radius:15px;
+}
+
+/* INPUT */
+input {
   padding:10px;
   width:80%;
   border-radius:10px;
@@ -76,164 +65,180 @@ input{
   margin:10px;
 }
 
-.nav{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  display:flex;
-  justify-content:space-around;
-  background:#111a2f;
-  padding:10px 0;
-}
-
-.section{
-  display:none;
-}
-
-.active{
-  display:block;
-}
-
-.card{
-  background:#1b2540;
-  margin:10px;
-  padding:15px;
-  border-radius:15px;
-}
 </style>
-
 </head>
 
 <body>
 
 <div class="header">
-  <div>💰 UC SPIN</div>
-  <div class="uc" id="balance">0 UC</div>
+  <h3>WEBDROP</h3>
+  <div class="balance" id="balance">0 UC</div>
 </div>
 
-<!-- ASOSIY -->
-<div id="home" class="section active">
-  <div class="arrow"></div>
-  <div id="wheel"></div>
-  <button onclick="spin()">🎡 SPIN</button>
+<h3>🎡 Spin</h3>
 
-  <div class="card">
-    <h3>👥 Do‘st taklif qilish</h3>
-    <button onclick="invite()">Taklif qilish</button>
-  </div>
+<img id="wheel" src="https://i.imgur.com/4NZ6uLY.png">
+
+<br>
+<button onclick="spin()">SPIN</button>
+
+<div class="card">
+  <h3>👥 Do‘st taklif</h3>
+  <p id="ref">link...</p>
 </div>
 
-<!-- VAZIFALAR -->
-<div id="tasks" class="section">
-  <div class="card">
-    YouTube <br>
-    <button onclick="task()">O‘tish</button>
-  </div>
-
-  <div class="card">
-    Instagram <br>
-    <button onclick="task()">O‘tish</button>
-  </div>
-
-  <div class="card">
-    Telegram <br>
-    <button onclick="task()">O‘tish</button>
-  </div>
+<div class="card">
+  <h3>📋 Vazifalar</h3>
+  <button onclick="task('yt')">YouTube</button>
+  <button onclick="task('ig')">Instagram</button>
+  <button onclick="task('tg')">Telegram</button>
 </div>
 
-<!-- PROFIL -->
-<div id="profile" class="section">
-  <div class="card">Joriy click: <span id="clicks">0</span></div>
-  <div class="card">Ball: <span id="points">0</span></div>
+<div class="card">
+  <h3>💳 UC olish</h3>
+  <input id="pubg" placeholder="PUBG ID">
+  <br>
+  <button onclick="withdraw(60)">60 UC</button>
+  <button onclick="withdraw(120)">120 UC</button>
 </div>
 
-<!-- REYTING -->
-<div id="rating" class="section">
-  <div class="card">#1 User - 200 UC</div>
-  <div class="card">#2 User - 150 UC</div>
+<div class="card">
+  <h3>🏆 Reyting</h3>
+  <div id="top"></div>
 </div>
 
-<!-- WALLET -->
-<div id="wallet" class="section">
-  <div class="card">Balans: <span id="walletUC">0</span> UC</div>
+<script type="module">
 
-  <input placeholder="PUBG ID">
+// 🔥 FIREBASE CONFIG (o‘zing qo‘yasan)
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getDatabase, ref, get, set, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-  <button onclick="alert('So‘rov yuborildi')">UC olish</button>
-</div>
+const firebaseConfig = {
+  apiKey: "API_KEY",
+  authDomain: "PROJECT.firebaseapp.com",
+  databaseURL: "https://PROJECT-default-rtdb.firebaseio.com",
+  projectId: "PROJECT",
+};
 
-<!-- NAV -->
-<div class="nav">
-  <div onclick="show('home')">🏠</div>
-  <div onclick="show('tasks')">📋</div>
-  <div onclick="show('profile')">👤</div>
-  <div onclick="show('rating')">🏆</div>
-  <div onclick="show('wallet')">💰</div>
-</div>
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-<script>
-// ===== BARABAN DATA =====
-const display = [0,2,1,4,5,3,50,300,100];
-const real = [2,1,4,5,3];
+// USER ID
+const user = localStorage.getItem("uid") || Date.now();
+localStorage.setItem("uid", user);
 
-let balance = 0;
-let clicks = 0;
-let points = 0;
+// REFERAL
+const refLink = location.href + "?ref=" + user;
+document.getElementById("ref").innerText = refLink;
 
-// ===== BARABAN CHIZISH =====
-const wheel = document.getElementById("wheel");
-const colors = ["#ff5252","#40c4ff","#69f0ae","#ffd740","#ff80ab","#b388ff","#ffab40","#18ffff","#ffff8d"];
+// USER LOAD
+async function loadUser() {
+  const snap = await get(ref(db, "users/" + user));
+  if (!snap.exists()) {
+    await set(ref(db, "users/" + user), {
+      uc: 0,
+      clicks: 0,
+      ref: 0
+    });
+  }
+  updateUI();
+}
+loadUser();
 
-display.forEach((val,i)=>{
-  const div = document.createElement("div");
-  div.className="segment";
-  div.style.background=colors[i];
-  div.style.transform=`rotate(${i*40}deg) skewY(-50deg)`;
-  div.innerHTML=`<span style="transform:skewY(50deg) rotate(-${i*40}deg)">${val} UC</span>`;
-  wheel.appendChild(div);
-});
+// UPDATE UI
+async function updateUI() {
+  const snap = await get(ref(db, "users/" + user));
+  const data = snap.val();
+  document.getElementById("balance").innerText = data.uc + " UC";
+}
 
-// ===== SPIN =====
-function spin(){
+// 🎡 SPIN LOGIKA
+const rewards = [2,1,4,5,3];
+
+window.spin = async function() {
   const last = localStorage.getItem("spin");
+  const now = Date.now();
 
-  if(last && Date.now()-last < 86400000){
-    alert("⏳ Ertaga spin qilasiz");
+  if (last && now - last < 86400000) {
+    alert("❌ Ertaga urinib ko‘ring");
     return;
   }
 
-  const win = real[Math.floor(Math.random()*real.length)];
-  balance += win;
+  const win = rewards[Math.floor(Math.random()*rewards.length)];
 
-  document.getElementById("balance").innerText = balance+" UC";
-  document.getElementById("walletUC").innerText = balance;
+  // animatsiya
+  document.getElementById("wheel").style.transform =
+    "rotate(" + (3600 + Math.random()*360) + "deg)";
 
-  localStorage.setItem("spin", Date.now());
+  setTimeout(async ()=>{
+    const userRef = ref(db, "users/" + user);
+    const snap = await get(userRef);
+    let data = snap.val();
 
-  alert("🎉 Siz yutdingiz: "+win+" UC");
+    data.uc += win;
+
+    await update(userRef, data);
+    updateUI();
+
+    alert("🎉 Siz yutdingiz: " + win + " UC");
+
+    localStorage.setItem("spin", now);
+  },4000);
 }
 
-// ===== TASK =====
-function task(){
-  clicks++;
-  points += 10;
+// 📋 TASK
+window.task = async function(type){
+  const userRef = ref(db, "users/" + user);
+  const snap = await get(userRef);
+  let data = snap.val();
 
-  document.getElementById("clicks").innerText = clicks;
-  document.getElementById("points").innerText = points;
+  data.clicks += 1;
+  data.uc += 1;
 
-  alert("+10 ball");
+  await update(userRef, data);
+  updateUI();
+
+  alert("✅ +1 UC qo‘shildi");
 }
 
-// ===== INVITE =====
-function invite(){
-  alert("Referal link yuborildi 🚀");
+// 💳 UC OLISH
+window.withdraw = async function(amount){
+  const pubg = document.getElementById("pubg").value;
+
+  if (!pubg) return alert("PUBG ID kiriting");
+
+  const snap = await get(ref(db, "users/" + user));
+  let data = snap.val();
+
+  if (data.uc < amount) return alert("UC yetarli emas");
+
+  data.uc -= amount;
+
+  await update(ref(db,"users/"+user), data);
+
+  // ADMIN MESSAGE (Telegramga yuborish uchun)
+  alert("✅ So‘rov yuborildi (admin tekshiradi)");
+
+  updateUI();
 }
 
-// ===== NAV =====
-function show(id){
-  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+// 🏆 TOP
+async function loadTop(){
+  const snap = await get(ref(db,"users"));
+  let users = snap.val();
+
+  let arr = Object.values(users);
+  arr.sort((a,b)=>b.uc - a.uc);
+
+  let html="";
+  arr.slice(0,5).forEach((u,i)=>{
+    html += `<p>#${i+1} — ${u.uc} UC</p>`;
+  });
+
+  document.getElementById("top").innerHTML = html;
 }
+loadTop();
+
 </script>
 
 </body>
