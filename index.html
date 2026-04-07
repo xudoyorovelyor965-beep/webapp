@@ -2,265 +2,237 @@
 <html lang="uz">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>UC Spin Pro</title>
+<title>UC SPIN</title>
 
 <style>
-body {
+body{
   margin:0;
   font-family:Arial;
-  background:#0b1020;
+  background:#0b1220;
   color:white;
   text-align:center;
 }
 
-/* HEADER */
-.header {
-  padding:15px;
-  background:#1a1f3a;
+.header{
   display:flex;
   justify-content:space-between;
-  align-items:center;
-}
-
-.balance-box {
-  background:gold;
-  color:black;
-  padding:8px 15px;
-  border-radius:20px;
+  padding:15px;
+  background:#111a2f;
   font-weight:bold;
 }
 
-/* WHEEL */
-.pointer {
+.uc{
+  background:gold;
+  color:black;
+  padding:5px 12px;
+  border-radius:20px;
+}
+
+#wheel{
+  width:300px;
+  height:300px;
+  border-radius:50%;
+  border:8px solid gold;
+  margin:30px auto;
+  position:relative;
+  overflow:hidden;
+}
+
+.segment{
+  position:absolute;
+  width:50%;
+  height:50%;
+  transform-origin:100% 100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+}
+
+.arrow{
   width:0;
   height:0;
   border-left:15px solid transparent;
   border-right:15px solid transparent;
   border-bottom:25px solid red;
-  margin:10px auto;
-}
-
-#wheel {
-  border-radius:50%;
-  border:6px solid gold;
   margin:auto;
-  transition:transform 4s ease-out;
 }
 
-/* BUTTON */
-.btn {
-  margin-top:15px;
+button{
   padding:12px 25px;
-  border:none;
-  border-radius:20px;
   background:gold;
+  border:none;
+  border-radius:25px;
   font-weight:bold;
+  margin:10px;
+  cursor:pointer;
 }
 
-/* INPUT */
-input {
-  margin-top:10px;
+input{
   padding:10px;
+  width:80%;
   border-radius:10px;
   border:none;
-  width:70%;
+  margin:10px;
 }
 
-/* CARD */
-.card {
-  background:#1a1f3a;
-  margin:15px;
-  padding:15px;
-  border-radius:15px;
-}
-
-/* NAV */
-.nav {
+.nav{
   position:fixed;
   bottom:0;
   width:100%;
-  background:#1a1f3a;
   display:flex;
   justify-content:space-around;
+  background:#111a2f;
   padding:10px 0;
 }
 
-.page { padding-bottom:80px; }
+.section{
+  display:none;
+}
+
+.active{
+  display:block;
+}
+
+.card{
+  background:#1b2540;
+  margin:10px;
+  padding:15px;
+  border-radius:15px;
+}
 </style>
+
 </head>
 
 <body>
 
 <div class="header">
-  <h3>💰 UC SPIN</h3>
-  <div class="balance-box" id="balance">0 UC</div>
+  <div>💰 UC SPIN</div>
+  <div class="uc" id="balance">0 UC</div>
 </div>
 
-<!-- HOME -->
-<div id="home" class="page">
+<!-- ASOSIY -->
+<div id="home" class="section active">
+  <div class="arrow"></div>
+  <div id="wheel"></div>
+  <button onclick="spin()">🎡 SPIN</button>
 
-<div class="pointer"></div>
-<canvas id="wheel"></canvas>
-
-<button class="btn" onclick="spin()">🎡 SPIN</button>
-<p id="timer"></p>
-
-<input placeholder="PUBG ID yoz">
-<button class="btn">💳 UC olish</button>
-
-<div class="card">
-  <h3>👥 Do‘st taklif qilish</h3>
-  <button class="btn" onclick="invite()">Taklif qilish +1 UC</button>
+  <div class="card">
+    <h3>👥 Do‘st taklif qilish</h3>
+    <button onclick="invite()">Taklif qilish</button>
+  </div>
 </div>
 
+<!-- VAZIFALAR -->
+<div id="tasks" class="section">
+  <div class="card">
+    YouTube <br>
+    <button onclick="task()">O‘tish</button>
+  </div>
+
+  <div class="card">
+    Instagram <br>
+    <button onclick="task()">O‘tish</button>
+  </div>
+
+  <div class="card">
+    Telegram <br>
+    <button onclick="task()">O‘tish</button>
+  </div>
 </div>
 
-<!-- TASKS -->
-<div id="tasks" class="page" style="display:none">
-  <h2>📋 Vazifalar</h2>
-  <button class="btn" onclick="watchAd()">📺 Video → +2 UC</button>
-  <button class="btn" onclick="joinTelegram()">📢 Telegram → +3 UC</button>
+<!-- PROFIL -->
+<div id="profile" class="section">
+  <div class="card">Joriy click: <span id="clicks">0</span></div>
+  <div class="card">Ball: <span id="points">0</span></div>
 </div>
 
-<!-- PROFILE -->
-<div id="profile" class="page" style="display:none">
-  <h2>👤 Profil</h2>
-  <p>User ID: 123456</p>
-</div>
-
-<!-- RATING -->
-<div id="rating" class="page" style="display:none">
-  <h2>🏆 Reyting</h2>
-  <p>1. Player - 100 UC</p>
+<!-- REYTING -->
+<div id="rating" class="section">
+  <div class="card">#1 User - 200 UC</div>
+  <div class="card">#2 User - 150 UC</div>
 </div>
 
 <!-- WALLET -->
-<div id="wallet" class="page" style="display:none">
-  <h2>💳 Hamyon</h2>
-  <p>Balans: <span id="balance2">0</span> UC</p>
+<div id="wallet" class="section">
+  <div class="card">Balans: <span id="walletUC">0</span> UC</div>
+
+  <input placeholder="PUBG ID">
+
+  <button onclick="alert('So‘rov yuborildi')">UC olish</button>
 </div>
 
 <!-- NAV -->
 <div class="nav">
-  <div onclick="showPage('home')">🏠</div>
-  <div onclick="showPage('tasks')">📋</div>
-  <div onclick="showPage('profile')">👤</div>
-  <div onclick="showPage('rating')">🏆</div>
-  <div onclick="showPage('wallet')">💳</div>
+  <div onclick="show('home')">🏠</div>
+  <div onclick="show('tasks')">📋</div>
+  <div onclick="show('profile')">👤</div>
+  <div onclick="show('rating')">🏆</div>
+  <div onclick="show('wallet')">💰</div>
 </div>
 
 <script>
-// BALANCE
+// ===== BARABAN DATA =====
+const display = [0,2,1,4,5,3,50,300,100];
+const real = [2,1,4,5,3];
+
 let balance = 0;
-let canSpin = true;
+let clicks = 0;
+let points = 0;
 
-// CANVAS HD
-const canvas = document.getElementById("wheel");
-const ctx = canvas.getContext("2d");
+// ===== BARABAN CHIZISH =====
+const wheel = document.getElementById("wheel");
+const colors = ["#ff5252","#40c4ff","#69f0ae","#ffd740","#ff80ab","#b388ff","#ffab40","#18ffff","#ffff8d"];
 
-const size = 260;
-canvas.width = size * 2;
-canvas.height = size * 2;
-canvas.style.width = size + "px";
-canvas.style.height = size + "px";
+display.forEach((val,i)=>{
+  const div = document.createElement("div");
+  div.className="segment";
+  div.style.background=colors[i];
+  div.style.transform=`rotate(${i*40}deg) skewY(-50deg)`;
+  div.innerHTML=`<span style="transform:skewY(50deg) rotate(-${i*40}deg)">${val} UC</span>`;
+  wheel.appendChild(div);
+});
 
-ctx.scale(2,2);
-
-// SEGMENTS
-const segments = ["0","2","1","4","5","3","50","300","100"];
-const realRewards = [0,2,1,4,5,3];
-
-const colors = [
-"#ff3b3b","#00c2ff","#00ff88",
-"#ffd500","#ff00d4","#00aaff",
-"#ff8800","#aa00ff","#00ffd5"
-];
-
-// DRAW
-function drawWheel() {
-  let angle = 2*Math.PI/segments.length;
-
-  for(let i=0;i<segments.length;i++){
-    ctx.beginPath();
-    ctx.moveTo(130,130);
-    ctx.arc(130,130,130,i*angle,(i+1)*angle);
-    ctx.fillStyle=colors[i];
-    ctx.fill();
-
-    ctx.save();
-    ctx.translate(130,130);
-    ctx.rotate(i*angle + angle/2);
-    ctx.fillStyle="#111";
-    ctx.font="bold 16px Arial";
-    ctx.fillText(segments[i]+" UC",60,5);
-    ctx.restore();
-  }
-}
-drawWheel();
-
-// SPIN
+// ===== SPIN =====
 function spin(){
-  if(!canSpin){
-    alert("❌ Bugun aylantirgansiz");
+  const last = localStorage.getItem("spin");
+
+  if(last && Date.now()-last < 86400000){
+    alert("⏳ Ertaga spin qilasiz");
     return;
   }
 
-  canSpin=false;
+  const win = real[Math.floor(Math.random()*real.length)];
+  balance += win;
 
-  let reward = realRewards[Math.floor(Math.random()*realRewards.length)];
-  let index = segments.indexOf(reward.toString());
+  document.getElementById("balance").innerText = balance+" UC";
+  document.getElementById("walletUC").innerText = balance;
 
-  let deg = 360*5 + index*(360/segments.length);
-  canvas.style.transform = "rotate("+deg+"deg)";
+  localStorage.setItem("spin", Date.now());
 
-  setTimeout(()=>{
-    balance += reward;
-    updateBalance();
-    alert("🎉 "+reward+" UC tushdi");
-    localStorage.setItem("spinTime",Date.now());
-  },4000);
+  alert("🎉 Siz yutdingiz: "+win+" UC");
 }
 
-// TIMER
-window.onload=function(){
-  let t = localStorage.getItem("spinTime");
-  if(t){
-    let diff = Date.now()-t;
-    if(diff < 86400000){
-      canSpin=false;
-      document.getElementById("timer").innerText="⏳ 24 soatda 1 marta";
-    }
-  }
+// ===== TASK =====
+function task(){
+  clicks++;
+  points += 10;
+
+  document.getElementById("clicks").innerText = clicks;
+  document.getElementById("points").innerText = points;
+
+  alert("+10 ball");
 }
 
-// UPDATE
-function updateBalance(){
-  document.getElementById("balance").innerText=balance+" UC";
-  document.getElementById("balance2").innerText=balance;
-}
-
-// INVITE
+// ===== INVITE =====
 function invite(){
-  balance+=1;
-  updateBalance();
+  alert("Referal link yuborildi 🚀");
 }
 
-// TASKS
-function watchAd(){
-  balance+=2;
-  updateBalance();
-}
-
-function joinTelegram(){
-  balance+=3;
-  updateBalance();
-}
-
-// NAV
-function showPage(p){
-  document.querySelectorAll(".page").forEach(x=>x.style.display="none");
-  document.getElementById(p).style.display="block";
+// ===== NAV =====
+function show(id){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 }
 </script>
 
