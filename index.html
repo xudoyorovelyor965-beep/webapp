@@ -6,69 +6,68 @@
 <title>WEBDROP</title>
 
 <style>
-body {
+body{
   margin:0;
   font-family:sans-serif;
-  background:#0b0f2a;
+  background:#0c1226;
   color:white;
   text-align:center;
 }
 
-.header {
+.header{
   display:flex;
   justify-content:space-between;
   padding:15px;
-  background:#1b1f3a;
+  background:#1a1f3c;
 }
 
-.uc {
+.uc{
   background:gold;
   color:black;
-  padding:5px 15px;
-  border-radius:20px;
+  padding:5px 10px;
+  border-radius:10px;
 }
 
-.wheel {
-  width:260px;
-  height:260px;
+.spin-box{
+  margin-top:20px;
+}
+
+#wheel{
+  width:250px;
+  height:250px;
   border-radius:50%;
-  margin:20px auto;
   border:8px solid gold;
-  background:conic-gradient(
-    #f1c40f 0deg 40deg,
-    #2ecc71 40deg 80deg,
-    #3498db 80deg 120deg,
-    #9b59b6 120deg 160deg,
-    #e67e22 160deg 200deg,
-    #e74c3c 200deg 240deg,
-    #1abc9c 240deg 280deg,
-    #f39c12 280deg 320deg,
-    #ecf0f1 320deg 360deg
-  );
-  transition: transform 4s ease-out;
+  transition:3s;
 }
 
-button {
+.btn{
   background:gold;
-  border:none;
-  padding:12px 25px;
-  border-radius:25px;
+  padding:12px;
+  border-radius:20px;
   margin:10px;
+  color:black;
   font-weight:bold;
 }
 
-.card {
-  background:#1b1f3a;
-  margin:15px;
+.card{
+  background:#1a1f3c;
+  margin:10px;
   padding:15px;
   border-radius:15px;
 }
 
-.nav {
+input{
+  width:90%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+}
+
+.bottom{
   position:fixed;
   bottom:0;
   width:100%;
-  background:#1b1f3a;
+  background:#111;
   display:flex;
   justify-content:space-around;
   padding:10px;
@@ -83,103 +82,152 @@ button {
   <div class="uc" id="balance">0 UC</div>
 </div>
 
-<h3>🎡 Spin</h3>
-<div id="wheel" class="wheel"></div>
-<button onclick="spin()">SPIN</button>
-
-<div class="card">
-  👥 Referal link:
-  <p id="ref"></p>
+<div class="spin-box">
+  <img id="wheel" src="https://i.imgur.com/6X4QZ5T.png">
+  <br>
+  <button class="btn" onclick="spin()">SPIN</button>
 </div>
 
 <div class="card">
-  📋 Vazifalar <br><br>
-  <button onclick="task()">YouTube</button>
-  <button onclick="task()">Instagram</button>
-  <button onclick="task()">Telegram</button>
+  <h3>Do‘st taklif</h3>
+  <p id="refLink"></p>
 </div>
 
 <div class="card">
-  💳 UC olish <br><br>
-  <input id="pubg" placeholder="PUBG ID"><br><br>
-  <button onclick="requestUC(60)">60 UC</button>
-  <button onclick="requestUC(120)">120 UC</button>
+  <h3>Vazifalar</h3>
+  <button class="btn" onclick="openLink('youtube')">YouTube</button>
+  <button class="btn" onclick="openLink('instagram')">Instagram</button>
+  <button class="btn" onclick="openLink('telegram')">Telegram</button>
 </div>
 
 <div class="card">
-  🏆 Reyting
-  <p id="top"></p>
+  <h3>UC olish</h3>
+  <input id="pubg" placeholder="PUBG ID">
+  <br><br>
+  <button class="btn" onclick="withdraw(60)">60 UC</button>
+  <button class="btn" onclick="withdraw(120)">120 UC</button>
 </div>
 
-<div class="nav">
-  <span>🏠</span>
-  <span>📋</span>
-  <span>👤</span>
-  <span>🏆</span>
-  <span>💰</span>
+<div class="card">
+  <h3>Reyting</h3>
+  <div id="top"></div>
 </div>
+
+<div class="bottom">
+  <div>Asosiy</div>
+  <div>Vazifalar</div>
+  <div>Mine</div>
+  <div>Reyting</div>
+  <div>Hamyon</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
 
 <script>
-// LOCAL DATA
-let balance = localStorage.getItem("uc") || 0;
-document.getElementById("balance").innerText = balance + " UC";
+/* 🔥 BU YERGA O‘ZINGNI FIREBASE */
+const firebaseConfig = {
+  apiKey: "API_KEY",
+  authDomain: "xxx",
+  databaseURL: "xxx",
+  projectId: "xxx",
+};
 
-// REFERAL
-let id = localStorage.getItem("id");
-if(!id){
-  id = Math.floor(Math.random()*999999);
-  localStorage.setItem("id", id);
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* USER */
+let user = localStorage.getItem("user");
+if(!user){
+  user = "user_" + Math.random().toString(36).substr(2,9);
+  localStorage.setItem("user", user);
 }
-document.getElementById("ref").innerText =
-location.href + "?ref=" + id;
 
-// SPIN LOGIKA
-const rewards = [2,1,4,5,3];
+document.getElementById("refLink").innerText =
+location.href + "?ref=" + user;
 
+/* LOAD BALANCE */
+function load(){
+  db.ref("users/"+user).on("value", snap=>{
+    let data = snap.val() || {coin:0};
+    document.getElementById("balance").innerText =
+    data.coin + " UC";
+  });
+}
+load();
+
+/* SPIN */
 function spin(){
-  let last = localStorage.getItem("spin");
-  let now = Date.now();
-
-  if(last && now - last < 86400000){
-    alert("Ertaga urinib ko‘ring");
-    return;
-  }
-
-  let win = rewards[Math.floor(Math.random()*rewards.length)];
-
-  let deg = 3600 + Math.random()*360;
+  let deg = Math.floor(Math.random()*3600);
   document.getElementById("wheel").style.transform =
-    "rotate("+deg+"deg)";
+  "rotate("+deg+"deg)";
+
+  let win = Math.floor(Math.random()*10)+1;
 
   setTimeout(()=>{
-    balance = Number(balance) + win;
-    localStorage.setItem("uc", balance);
-    localStorage.setItem("spin", now);
-    document.getElementById("balance").innerText = balance+" UC";
+    db.ref("users/"+user+"/coin")
+    .transaction(c=> (c||0)+win);
     alert("Yutding: "+win+" UC");
-  },4000);
+  },3000);
 }
 
-// TASK
-function task(){
-  balance = Number(balance) + 1;
-  localStorage.setItem("uc", balance);
-  document.getElementById("balance").innerText = balance+" UC";
+/* VAZIFA LINK */
+function openLink(type){
+  if(type=="youtube") window.open("https://youtube.com");
+  if(type=="instagram") window.open("https://instagram.com");
+  if(type=="telegram") window.open("https://t.me");
+
+  db.ref("users/"+user+"/coin")
+  .transaction(c=> (c||0)+2);
 }
 
-// UC REQUEST (ADMIN)
-function requestUC(amount){
+/* UC CHIQARISH */
+function withdraw(amount){
   let pubg = document.getElementById("pubg").value;
-  if(!pubg) return alert("ID kiriting");
+  if(!pubg) return alert("ID yoz");
 
-  let msg = "UC so‘rov\nID: "+pubg+"\nAmount: "+amount;
-  window.open("https://t.me/Doniyor_0819?text="+encodeURIComponent(msg));
+  db.ref("users/"+user+"/coin").once("value").then(snap=>{
+    let coin = snap.val()||0;
+
+    if(coin < amount) return alert("UC yetarli emas");
+
+    db.ref("users/"+user+"/coin").set(coin-amount);
+
+    sendToAdmin(pubg, amount);
+    alert("So‘rov yuborildi");
+  });
 }
 
-// FAKE REYTING
-document.getElementById("top").innerHTML =
-"#1 200 UC<br>#2 150 UC<br>#3 100 UC";
+/* TELEGRAM BOT */
+function sendToAdmin(id, amount){
+  let text = "Yangi UC so‘rov\nID: "+id+"\nUC: "+amount;
 
+  fetch("https://api.telegram.org/botBOT_TOKEN/sendMessage",{
+    method:"POST",
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      chat_id:"ADMIN_CHAT_ID",
+      text:text
+    })
+  });
+}
+
+/* TOP USERS */
+db.ref("users").on("value", snap=>{
+  let data = snap.val() || {};
+  let arr = Object.keys(data).map(k=>{
+    return {id:k, coin:data[k].coin||0};
+  });
+
+  arr.sort((a,b)=>b.coin-a.coin);
+
+  let html="";
+  arr.slice(0,5).forEach((u,i)=>{
+    html += `<div>#${i+1} ${u.id} - ${u.coin} UC</div>`;
+  });
+
+  document.getElementById("top").innerHTML = html;
+});
 </script>
 
 </body>
