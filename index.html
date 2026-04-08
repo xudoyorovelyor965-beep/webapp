@@ -1,43 +1,106 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
 <meta charset="UTF-8">
-<title>UC SPIN</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WEBDROP PRO</title>
 
 <style>
-body{margin:0;background:#0b0f2a;color:white;font-family:sans-serif;text-align:center}
+body{
+margin:0;
+font-family:sans-serif;
+background:linear-gradient(#0b0f2a,#05071a);
+color:white;
+text-align:center;
+}
 
 /* HEADER */
-.header{display:flex;justify-content:space-between;padding:10px;background:#141a3a}
-.uc{background:gold;color:black;padding:5px 10px;border-radius:10px}
+.header{
+display:flex;
+justify-content:space-between;
+padding:15px;
+background:#1a1f4d;
+}
+
+.uc{
+background:#3a2f1f;
+padding:6px 12px;
+border-radius:15px;
+color:#ffd700;
+font-weight:bold;
+}
+
+/* SECTION */
+.section{display:none;padding:10px}
+.active{display:block}
 
 /* WHEEL */
 #wheel{
-width:250px;height:250px;border-radius:50%;
-margin:20px auto;border:8px solid gold;
-background:conic-gradient(red,orange,yellow,green,blue,purple,cyan,pink);
+width:260px;height:260px;
+border-radius:50%;
+margin:20px auto;
+border:8px solid gold;
+background:conic-gradient(
+#00c2ff 0deg 36deg,
+#00ffa6 36deg 72deg,
+#ffd500 72deg 108deg,
+#ff9f00 108deg 144deg,
+#a259ff 144deg 180deg,
+#ff4d6d 180deg 216deg,
+#00b4d8 216deg 252deg,
+#ff006e 252deg 288deg,
+#ff3d00 288deg 324deg,
+#ffd60a 324deg 360deg
+);
 transition:4s;
 }
 
-/* BUTTON */
-.btn{background:gold;padding:10px;border-radius:15px;margin:5px;border:none}
+.pointer{
+width:0;height:0;margin:auto;
+border-left:15px solid transparent;
+border-right:15px solid transparent;
+border-bottom:25px solid red;
+}
+
+.btn{
+background:gold;
+padding:12px;
+border-radius:20px;
+margin:10px;
+border:none;
+font-weight:bold;
+}
+
+.card{
+background:#141a3a;
+margin:10px;
+padding:15px;
+border-radius:15px;
+}
 
 /* NAV */
-.nav{position:fixed;bottom:0;width:100%;background:#111;display:flex;justify-content:space-around;padding:10px}
-.section{display:none}
-.active{display:block}
+.nav{
+position:fixed;
+bottom:0;
+width:100%;
+background:#111;
+display:flex;
+justify-content:space-around;
+padding:10px;
+}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-<b>UC SPIN</b>
+<b>WEBDROP</b>
 <div class="uc" id="balance">0 UC</div>
 </div>
 
-<!-- SPIN -->
+<!-- HOME -->
 <div id="home" class="section active">
+<div class="pointer"></div>
 <div id="wheel"></div>
 <button class="btn" onclick="spin()">SPIN</button>
 <p id="timer"></p>
@@ -45,44 +108,90 @@ transition:4s;
 
 <!-- TASK -->
 <div id="tasks" class="section">
-<button class="btn" onclick="task()">Vazifa bajar (+2 UC)</button>
+
+<div class="card">
+<h3>Majburiy obuna</h3>
+<button class="btn" onclick="sub('https://t.me/jamfme')">Kanal 1</button>
+<button class="btn" onclick="sub('https://t.me/PP_SAVDA_KALAN')">Kanal 2</button>
+<button class="btn" onclick="sub('https://t.me/Kanal_0214')">Kanal 3</button>
 </div>
 
-<!-- CLICK -->
-<div id="click" class="section">
-<h3>Ekranga bos!</h3>
-<button class="btn" onclick="clickCoin()">+1 Ball</button>
-<p>Ball: <span id="ball">0</span></p>
-<button class="btn" onclick="convert()">100 ball → 1 UC</button>
+<div class="card">
+<h3>Vazifalar</h3>
+<button class="btn" onclick="task()">YouTube (+2 UC)</button>
+<button class="btn" onclick="task()">Instagram (+2 UC)</button>
+</div>
+
+<div class="card">
+<h3>Referal</h3>
+<p id="ref"></p>
+</div>
+
+</div>
+
+<!-- RATING -->
+<div id="rating" class="section">
+<div class="card">
+<h3>TOP USERS</h3>
+<div id="top"></div>
+</div>
 </div>
 
 <!-- WALLET -->
 <div id="wallet" class="section">
+<div class="card">
 <input id="pubg" placeholder="PUBG ID"><br>
 <button class="btn" onclick="withdraw(60)">60 UC</button>
 <button class="btn" onclick="withdraw(120)">120 UC</button>
 </div>
+</div>
 
 <!-- NAV -->
 <div class="nav">
-<div onclick="show('home')">🎡</div>
+<div onclick="show('home')">🏠</div>
 <div onclick="show('tasks')">📋</div>
-<div onclick="show('click')">👆</div>
+<div onclick="show('rating')">🏆</div>
 <div onclick="show('wallet')">💰</div>
 </div>
 
+<!-- FIREBASE -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+
 <script>
 
-/* DATA */
-let uc = Number(localStorage.getItem("uc"))||0;
-let ball = Number(localStorage.getItem("ball"))||0;
-update();
+/* 🔥 O'ZINGNI QO'Y */
+const firebaseConfig = {
+apiKey: "API_KEY",
+authDomain: "xxx",
+databaseURL: "xxx",
+projectId: "xxx"
+};
 
-/* UI */
-function update(){
-document.getElementById("balance").innerText=uc+" UC";
-document.getElementById("ball").innerText=ball;
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+
+/* USER */
+let user = localStorage.getItem("user");
+if(!user){
+user="user_"+Math.random().toString(36).substr(2,9);
+localStorage.setItem("user",user);
 }
+
+/* REFERAL */
+let ref = new URLSearchParams(location.search).get("ref");
+if(ref && ref!=user){
+db.ref("users/"+ref+"/coin").transaction(c=>(c||0)+5);
+}
+
+document.getElementById("ref").innerText=
+location.href.split("?")[0]+"?ref="+user;
+
+/* LOAD */
+db.ref("users/"+user).on("value",snap=>{
+let d=snap.val()||{coin:0};
+document.getElementById("balance").innerText=d.coin+" UC";
+});
 
 /* NAV */
 function show(id){
@@ -114,10 +223,8 @@ document.getElementById("wheel").style.transform="rotate("+deg+"deg)";
 let win=getWin();
 
 setTimeout(()=>{
-uc+=win;
-localStorage.setItem("uc",uc);
+db.ref("users/"+user+"/coin").transaction(c=>(c||0)+win);
 localStorage.setItem("spin",Date.now());
-update();
 alert(win+" UC yutding");
 },4000);
 }
@@ -138,52 +245,56 @@ h+":"+m+":"+s;
 
 /* TASK */
 function task(){
-uc+=2;
-localStorage.setItem("uc",uc);
-update();
+db.ref("users/"+user+"/coin").transaction(c=>(c||0)+2);
 }
 
-/* CLICK */
-function clickCoin(){
-ball++;
-localStorage.setItem("ball",ball);
-update();
+/* SUB */
+function sub(link){
+window.open(link);
+db.ref("users/"+user+"/coin").transaction(c=>(c||0)+1);
 }
 
-function convert(){
-if(ball<100)return alert("100 ball kerak");
-
-ball-=100;
-uc+=1;
-
-localStorage.setItem("ball",ball);
-localStorage.setItem("uc",uc);
-update();
-}
-
-/* WALLET */
+/* WITHDRAW */
 function withdraw(amount){
 let id=document.getElementById("pubg").value;
 if(!id)return alert("ID yoz");
 
-if(uc<amount)return alert("UC yetarli emas");
+db.ref("users/"+user+"/coin").once("value").then(snap=>{
+let coin=snap.val()||0;
 
-uc-=amount;
-localStorage.setItem("uc",uc);
-update();
+if(coin<amount)return alert("UC yetarli emas");
 
-/* TELEGRAM */
-fetch("https://api.telegram.org/botBOT_TOKEN/sendMessage",{
+db.ref("users/"+user+"/coin").set(coin-amount);
+
+fetch("https://api.telegram.org/bot8524853781:AAHb8CIjovRdPysSGdKmHUW1Ly2qyVOXg2w/sendMessage",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-chat_id:"ADMIN_CHAT_ID",
-text:`UC SO‘ROV\nID:${id}\nUC:${amount}`
+chat_id:"7523440154",
+text:`UC SO‘ROV\nUser:${user}\nID:${id}\nUC:${amount}`
 })
 });
 
-alert("Adminga yuborildi");
+alert("Yuborildi");
+});
 }
+
+/* TOP */
+db.ref("users").on("value",snap=>{
+let data=snap.val()||{};
+let arr=Object.keys(data).map(k=>{
+return {id:k,coin:data[k].coin||0};
+});
+
+arr.sort((a,b)=>b.coin-a.coin);
+
+let html="";
+arr.slice(0,10).forEach((u,i)=>{
+html+=`<div>#${i+1} ${u.id} - ${u.coin} UC</div>`;
+});
+
+document.getElementById("top").innerHTML=html;
+});
 
 </script>
 
