@@ -202,11 +202,11 @@ function withdraw(amount){
 function sendToAdmin(id, amount){
   let text = "Yangi UC so‘rov\nID: "+id+"\nUC: "+amount;
 
-  fetch("https://api.telegram.org/botBOT_TOKEN/sendMessage",{
+  fetch("https://api.telegram.org/bot8524853781:AAHb8CIjovRdPysSGdKmHUW1Ly2qyVOXg2w/sendMessage",{
     method:"POST",
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
-      chat_id:"ADMIN_CHAT_ID",
+      chat_id:"8524853781",
       text:text
     })
   });
