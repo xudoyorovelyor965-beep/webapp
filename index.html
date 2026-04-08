@@ -1,233 +1,190 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WEBDROP</title>
+<title>UC SPIN</title>
 
 <style>
-body{
-  margin:0;
-  font-family:sans-serif;
-  background:#0c1226;
-  color:white;
-  text-align:center;
-}
+body{margin:0;background:#0b0f2a;color:white;font-family:sans-serif;text-align:center}
 
-.header{
-  display:flex;
-  justify-content:space-between;
-  padding:15px;
-  background:#1a1f3c;
-}
+/* HEADER */
+.header{display:flex;justify-content:space-between;padding:10px;background:#141a3a}
+.uc{background:gold;color:black;padding:5px 10px;border-radius:10px}
 
-.uc{
-  background:gold;
-  color:black;
-  padding:5px 10px;
-  border-radius:10px;
-}
-
-.spin-box{
-  margin-top:20px;
-}
-
+/* WHEEL */
 #wheel{
-  width:250px;
-  height:250px;
-  border-radius:50%;
-  border:8px solid gold;
-  transition:3s;
+width:250px;height:250px;border-radius:50%;
+margin:20px auto;border:8px solid gold;
+background:conic-gradient(red,orange,yellow,green,blue,purple,cyan,pink);
+transition:4s;
 }
 
-.btn{
-  background:gold;
-  padding:12px;
-  border-radius:20px;
-  margin:10px;
-  color:black;
-  font-weight:bold;
-}
+/* BUTTON */
+.btn{background:gold;padding:10px;border-radius:15px;margin:5px;border:none}
 
-.card{
-  background:#1a1f3c;
-  margin:10px;
-  padding:15px;
-  border-radius:15px;
-}
-
-input{
-  width:90%;
-  padding:10px;
-  border-radius:10px;
-  border:none;
-}
-
-.bottom{
-  position:fixed;
-  bottom:0;
-  width:100%;
-  background:#111;
-  display:flex;
-  justify-content:space-around;
-  padding:10px;
-}
+/* NAV */
+.nav{position:fixed;bottom:0;width:100%;background:#111;display:flex;justify-content:space-around;padding:10px}
+.section{display:none}
+.active{display:block}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  <b>WEBDROP</b>
-  <div class="uc" id="balance">0 UC</div>
+<b>UC SPIN</b>
+<div class="uc" id="balance">0 UC</div>
 </div>
 
-<div class="spin-box">
-  <img id="wheel" src="https://i.imgur.com/6X4QZ5T.png">
-  <br>
-  <button class="btn" onclick="spin()">SPIN</button>
+<!-- SPIN -->
+<div id="home" class="section active">
+<div id="wheel"></div>
+<button class="btn" onclick="spin()">SPIN</button>
+<p id="timer"></p>
 </div>
 
-<div class="card">
-  <h3>Do‘st taklif</h3>
-  <p id="refLink"></p>
+<!-- TASK -->
+<div id="tasks" class="section">
+<button class="btn" onclick="task()">Vazifa bajar (+2 UC)</button>
 </div>
 
-<div class="card">
-  <h3>Vazifalar</h3>
-  <button class="btn" onclick="openLink('youtube')">YouTube</button>
-  <button class="btn" onclick="openLink('instagram')">Instagram</button>
-  <button class="btn" onclick="openLink('telegram')">Telegram</button>
+<!-- CLICK -->
+<div id="click" class="section">
+<h3>Ekranga bos!</h3>
+<button class="btn" onclick="clickCoin()">+1 Ball</button>
+<p>Ball: <span id="ball">0</span></p>
+<button class="btn" onclick="convert()">100 ball → 1 UC</button>
 </div>
 
-<div class="card">
-  <h3>UC olish</h3>
-  <input id="pubg" placeholder="PUBG ID">
-  <br><br>
-  <button class="btn" onclick="withdraw(60)">60 UC</button>
-  <button class="btn" onclick="withdraw(120)">120 UC</button>
+<!-- WALLET -->
+<div id="wallet" class="section">
+<input id="pubg" placeholder="PUBG ID"><br>
+<button class="btn" onclick="withdraw(60)">60 UC</button>
+<button class="btn" onclick="withdraw(120)">120 UC</button>
 </div>
 
-<div class="card">
-  <h3>Reyting</h3>
-  <div id="top"></div>
+<!-- NAV -->
+<div class="nav">
+<div onclick="show('home')">🎡</div>
+<div onclick="show('tasks')">📋</div>
+<div onclick="show('click')">👆</div>
+<div onclick="show('wallet')">💰</div>
 </div>
-
-<div class="bottom">
-  <div>Asosiy</div>
-  <div>Vazifalar</div>
-  <div>Mine</div>
-  <div>Reyting</div>
-  <div>Hamyon</div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js"></script>
 
 <script>
-/* 🔥 BU YERGA O‘ZINGNI FIREBASE */
-const firebaseConfig = {
-  apiKey: "API_KEY",
-  authDomain: "xxx",
-  databaseURL: "xxx",
-  projectId: "xxx",
-};
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
+/* DATA */
+let uc = Number(localStorage.getItem("uc"))||0;
+let ball = Number(localStorage.getItem("ball"))||0;
+update();
 
-/* USER */
-let user = localStorage.getItem("user");
-if(!user){
-  user = "user_" + Math.random().toString(36).substr(2,9);
-  localStorage.setItem("user", user);
+/* UI */
+function update(){
+document.getElementById("balance").innerText=uc+" UC";
+document.getElementById("ball").innerText=ball;
 }
 
-document.getElementById("refLink").innerText =
-location.href + "?ref=" + user;
-
-/* LOAD BALANCE */
-function load(){
-  db.ref("users/"+user).on("value", snap=>{
-    let data = snap.val() || {coin:0};
-    document.getElementById("balance").innerText =
-    data.coin + " UC";
-  });
+/* NAV */
+function show(id){
+document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+document.getElementById(id).classList.add("active");
 }
-load();
 
-/* SPIN */
+/* 🎡 SPIN */
+function getWin(){
+let r=Math.random();
+if(r<0.4)return 1;
+if(r<0.7)return 2;
+if(r<0.85)return 3;
+if(r<0.95)return 4;
+return 5;
+}
+
 function spin(){
-  let deg = Math.floor(Math.random()*3600);
-  document.getElementById("wheel").style.transform =
-  "rotate("+deg+"deg)";
+let last=localStorage.getItem("spin");
 
-  let win = Math.floor(Math.random()*10)+1;
-
-  setTimeout(()=>{
-    db.ref("users/"+user+"/coin")
-    .transaction(c=> (c||0)+win);
-    alert("Yutding: "+win+" UC");
-  },3000);
+if(last && Date.now()-last<86400000){
+alert("1 kunda 1 marta!");
+return;
 }
 
-/* VAZIFA LINK */
-function openLink(type){
-  if(type=="youtube") window.open("https://youtube.com");
-  if(type=="instagram") window.open("https://instagram.com");
-  if(type=="telegram") window.open("https://t.me");
+let deg=3600+Math.random()*360;
+document.getElementById("wheel").style.transform="rotate("+deg+"deg)";
 
-  db.ref("users/"+user+"/coin")
-  .transaction(c=> (c||0)+2);
+let win=getWin();
+
+setTimeout(()=>{
+uc+=win;
+localStorage.setItem("uc",uc);
+localStorage.setItem("spin",Date.now());
+update();
+alert(win+" UC yutding");
+},4000);
 }
 
-/* UC CHIQARISH */
+/* TIMER */
+setInterval(()=>{
+let last=localStorage.getItem("spin")||0;
+let t=86400000-(Date.now()-last);
+if(t<0)t=0;
+
+let h=Math.floor(t/3600000);
+let m=Math.floor((t%3600000)/60000);
+let s=Math.floor((t%60000)/1000);
+
+document.getElementById("timer").innerText=
+h+":"+m+":"+s;
+},1000);
+
+/* TASK */
+function task(){
+uc+=2;
+localStorage.setItem("uc",uc);
+update();
+}
+
+/* CLICK */
+function clickCoin(){
+ball++;
+localStorage.setItem("ball",ball);
+update();
+}
+
+function convert(){
+if(ball<100)return alert("100 ball kerak");
+
+ball-=100;
+uc+=1;
+
+localStorage.setItem("ball",ball);
+localStorage.setItem("uc",uc);
+update();
+}
+
+/* WALLET */
 function withdraw(amount){
-  let pubg = document.getElementById("pubg").value;
-  if(!pubg) return alert("ID yoz");
+let id=document.getElementById("pubg").value;
+if(!id)return alert("ID yoz");
 
-  db.ref("users/"+user+"/coin").once("value").then(snap=>{
-    let coin = snap.val()||0;
+if(uc<amount)return alert("UC yetarli emas");
 
-    if(coin < amount) return alert("UC yetarli emas");
+uc-=amount;
+localStorage.setItem("uc",uc);
+update();
 
-    db.ref("users/"+user+"/coin").set(coin-amount);
-
-    sendToAdmin(pubg, amount);
-    alert("So‘rov yuborildi");
-  });
-}
-
-/* TELEGRAM BOT */
-function sendToAdmin(id, amount){
-  let text = "Yangi UC so‘rov\nID: "+id+"\nUC: "+amount;
-
-  fetch("https://api.telegram.org/bot8524853781:AAHb8CIjovRdPysSGdKmHUW1Ly2qyVOXg2w/sendMessage",{
-    method:"POST",
-    headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      chat_id:"8524853781",
-      text:text
-    })
-  });
-}
-
-/* TOP USERS */
-db.ref("users").on("value", snap=>{
-  let data = snap.val() || {};
-  let arr = Object.keys(data).map(k=>{
-    return {id:k, coin:data[k].coin||0};
-  });
-
-  arr.sort((a,b)=>b.coin-a.coin);
-
-  let html="";
-  arr.slice(0,5).forEach((u,i)=>{
-    html += `<div>#${i+1} ${u.id} - ${u.coin} UC</div>`;
-  });
-
-  document.getElementById("top").innerHTML = html;
+/* TELEGRAM */
+fetch("https://api.telegram.org/botBOT_TOKEN/sendMessage",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({
+chat_id:"ADMIN_CHAT_ID",
+text:`UC SO‘ROV\nID:${id}\nUC:${amount}`
+})
 });
+
+alert("Adminga yuborildi");
+}
+
 </script>
 
 </body>
