@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WEBDROP PRO</title>
+<title>WEBDROP</title>
 
 <style>
 body{
 margin:0;
 font-family:sans-serif;
-background:linear-gradient(#0b0f2a,#05071a);
+background:linear-gradient(180deg,#0b0f2a,#1a1f4d);
 color:white;
 text-align:center;
 }
@@ -19,63 +19,74 @@ text-align:center;
 display:flex;
 justify-content:space-between;
 padding:15px;
-background:#1a1f4d;
+background:#2b2f55;
+align-items:center;
 }
 
-.uc{
-background:#3a2f1f;
-padding:6px 12px;
-border-radius:15px;
-color:#ffd700;
+.uc-box{
+background:linear-gradient(45deg,#ffcc00,#ff9900);
+padding:8px 15px;
+border-radius:20px;
 font-weight:bold;
+color:black;
+box-shadow:0 0 10px gold;
 }
-
-/* SECTION */
-.section{display:none;padding:10px}
-.active{display:block}
 
 /* WHEEL */
+.wheel-box{
+margin-top:20px;
+}
+
+.pointer{
+width:0;
+height:0;
+margin:auto;
+border-left:15px solid transparent;
+border-right:15px solid transparent;
+border-bottom:25px solid #ff5c5c;
+}
+
 #wheel{
-width:260px;height:260px;
+width:260px;
+height:260px;
 border-radius:50%;
-margin:20px auto;
+margin:15px auto;
 border:8px solid gold;
+box-shadow:0 0 30px gold;
 background:conic-gradient(
-#00c2ff 0deg 36deg,
-#00ffa6 36deg 72deg,
-#ffd500 72deg 108deg,
-#ff9f00 108deg 144deg,
-#a259ff 144deg 180deg,
+#ffd700 0deg 36deg,
+#00c2ff 36deg 72deg,
+#4caf50 72deg 108deg,
+#ff9800 108deg 144deg,
+#9c27b0 144deg 180deg,
 #ff4d6d 180deg 216deg,
-#00b4d8 216deg 252deg,
-#ff006e 252deg 288deg,
-#ff3d00 288deg 324deg,
-#ffd60a 324deg 360deg
+#00bcd4 216deg 252deg,
+#e91e63 252deg 288deg,
+#ff5722 288deg 324deg,
+#ffc107 324deg 360deg
 );
 transition:4s;
 }
 
-.pointer{
-width:0;height:0;margin:auto;
-border-left:15px solid transparent;
-border-right:15px solid transparent;
-border-bottom:25px solid red;
-}
-
+/* BUTTON */
 .btn{
-background:gold;
-padding:12px;
-border-radius:20px;
-margin:10px;
+background:linear-gradient(45deg,#ffcc00,#ff9900);
 border:none;
+padding:14px 25px;
+border-radius:30px;
+font-size:16px;
 font-weight:bold;
+margin:10px;
+box-shadow:0 0 15px gold;
 }
 
+/* CARD */
 .card{
-background:#141a3a;
-margin:10px;
-padding:15px;
-border-radius:15px;
+background:#2b2f55;
+margin:15px;
+padding:20px;
+border-radius:20px;
+box-shadow:0 0 20px rgba(255,255,255,0.1);
 }
 
 /* NAV */
@@ -83,64 +94,64 @@ border-radius:15px;
 position:fixed;
 bottom:0;
 width:100%;
-background:#111;
+background:#1a1a2e;
 display:flex;
 justify-content:space-around;
 padding:10px;
+font-size:20px;
 }
+
+.section{display:none}
+.active{display:block}
+
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="header">
 <b>WEBDROP</b>
-<div class="uc" id="balance">0 UC</div>
+<div class="uc-box" id="balance">0 UC</div>
 </div>
 
 <!-- HOME -->
 <div id="home" class="section active">
+<div class="wheel-box">
 <div class="pointer"></div>
 <div id="wheel"></div>
-<button class="btn" onclick="spin()">SPIN</button>
+<button class="btn" onclick="spin()">Aylantirish</button>
 <p id="timer"></p>
+</div>
+
+<button class="btn">👤 Do‘st taklif qiling</button>
 </div>
 
 <!-- TASK -->
 <div id="tasks" class="section">
-
-<div class="card">
-<h3>Majburiy obuna</h3>
-<button class="btn" onclick="sub('https://t.me/jamfme')">Kanal 1</button>
-<button class="btn" onclick="sub('https://t.me/PP_SAVDA_KALAN')">Kanal 2</button>
-<button class="btn" onclick="sub('https://t.me/Kanal_0214')">Kanal 3</button>
-</div>
-
 <div class="card">
 <h3>Vazifalar</h3>
-<button class="btn" onclick="task()">YouTube (+2 UC)</button>
-<button class="btn" onclick="task()">Instagram (+2 UC)</button>
+<button class="btn" onclick="task()">YouTube</button>
+<button class="btn" onclick="task()">Instagram</button>
+<button class="btn" onclick="task()">Telegram</button>
+</div>
 </div>
 
+<!-- MINE -->
+<div id="mine" class="section">
 <div class="card">
-<h3>Referal</h3>
-<p id="ref"></p>
-</div>
-
-</div>
-
-<!-- RATING -->
-<div id="rating" class="section">
-<div class="card">
-<h3>TOP USERS</h3>
-<div id="top"></div>
+<h3>Ball yig‘ish</h3>
+<button class="btn" onclick="clickCoin()">+1 Ball</button>
+<p>Ball: <span id="ball">0</span></p>
+<button class="btn" onclick="convert()">100 → 1 UC</button>
 </div>
 </div>
 
 <!-- WALLET -->
 <div id="wallet" class="section">
 <div class="card">
-<input id="pubg" placeholder="PUBG ID"><br>
+<h3>UC chiqarish</h3>
+<input id="pubg" placeholder="PUBG ID"><br><br>
 <button class="btn" onclick="withdraw(60)">60 UC</button>
 <button class="btn" onclick="withdraw(120)">120 UC</button>
 </div>
@@ -150,48 +161,22 @@ padding:10px;
 <div class="nav">
 <div onclick="show('home')">🏠</div>
 <div onclick="show('tasks')">📋</div>
-<div onclick="show('rating')">🏆</div>
+<div onclick="show('mine')">🎯</div>
 <div onclick="show('wallet')">💰</div>
 </div>
 
-<!-- FIREBASE -->
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
-
 <script>
 
-/* 🔥 O'ZINGNI QO'Y */
-const firebaseConfig = {
-apiKey: "API_KEY",
-authDomain: "xxx",
-databaseURL: "xxx",
-projectId: "xxx"
-};
+/* DATA */
+let uc = Number(localStorage.getItem("uc"))||0;
+let ball = Number(localStorage.getItem("ball"))||0;
+update();
 
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-
-/* USER */
-let user = localStorage.getItem("user");
-if(!user){
-user="user_"+Math.random().toString(36).substr(2,9);
-localStorage.setItem("user",user);
+/* UI */
+function update(){
+document.getElementById("balance").innerText=uc+" UC";
+document.getElementById("ball").innerText=ball;
 }
-
-/* REFERAL */
-let ref = new URLSearchParams(location.search).get("ref");
-if(ref && ref!=user){
-db.ref("users/"+ref+"/coin").transaction(c=>(c||0)+5);
-}
-
-document.getElementById("ref").innerText=
-location.href.split("?")[0]+"?ref="+user;
-
-/* LOAD */
-db.ref("users/"+user).on("value",snap=>{
-let d=snap.val()||{coin:0};
-document.getElementById("balance").innerText=d.coin+" UC";
-});
 
 /* NAV */
 function show(id){
@@ -199,7 +184,7 @@ document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
 document.getElementById(id).classList.add("active");
 }
 
-/* 🎡 SPIN */
+/* SPIN */
 function getWin(){
 let r=Math.random();
 if(r<0.4)return 1;
@@ -223,8 +208,10 @@ document.getElementById("wheel").style.transform="rotate("+deg+"deg)";
 let win=getWin();
 
 setTimeout(()=>{
-db.ref("users/"+user+"/coin").transaction(c=>(c||0)+win);
+uc+=win;
+localStorage.setItem("uc",uc);
 localStorage.setItem("spin",Date.now());
+update();
 alert(win+" UC yutding");
 },4000);
 }
@@ -245,13 +232,27 @@ h+":"+m+":"+s;
 
 /* TASK */
 function task(){
-db.ref("users/"+user+"/coin").transaction(c=>(c||0)+2);
+uc+=2;
+localStorage.setItem("uc",uc);
+update();
 }
 
-/* SUB */
-function sub(link){
-window.open(link);
-db.ref("users/"+user+"/coin").transaction(c=>(c||0)+1);
+/* CLICK */
+function clickCoin(){
+ball++;
+localStorage.setItem("ball",ball);
+update();
+}
+
+function convert(){
+if(ball<100)return alert("100 ball kerak");
+
+ball-=100;
+uc+=1;
+
+localStorage.setItem("ball",ball);
+localStorage.setItem("uc",uc);
+update();
 }
 
 /* WITHDRAW */
@@ -259,44 +260,16 @@ function withdraw(amount){
 let id=document.getElementById("pubg").value;
 if(!id)return alert("ID yoz");
 
-db.ref("users/"+user+"/coin").once("value").then(snap=>{
-let coin=snap.val()||0;
+if(uc<amount)return alert("UC yetarli emas");
 
-if(coin<amount)return alert("UC yetarli emas");
+uc-=amount;
+localStorage.setItem("uc",uc);
+update();
 
-db.ref("users/"+user+"/coin").set(coin-amount);
-
-fetch("https://api.telegram.org/bot8524853781:AAHb8CIjovRdPysSGdKmHUW1Ly2qyVOXg2w/sendMessage",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-chat_id:"7523440154",
-text:`UC SO‘ROV\nUser:${user}\nID:${id}\nUC:${amount}`
-})
-});
-
-alert("Yuborildi");
-});
+alert("So‘rov yuborildi");
 }
-
-/* TOP */
-db.ref("users").on("value",snap=>{
-let data=snap.val()||{};
-let arr=Object.keys(data).map(k=>{
-return {id:k,coin:data[k].coin||0};
-});
-
-arr.sort((a,b)=>b.coin-a.coin);
-
-let html="";
-arr.slice(0,10).forEach((u,i)=>{
-html+=`<div>#${i+1} ${u.id} - ${u.coin} UC</div>`;
-});
-
-document.getElementById("top").innerHTML=html;
-});
 
 </script>
 
 </body>
-</html>
+  </html>
